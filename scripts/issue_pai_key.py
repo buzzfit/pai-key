@@ -12,7 +12,7 @@ import argparse
 from xrpl.clients import JsonRpcClient
 from xrpl.wallet import Wallet
 from xrpl.transaction import (
-    safe_sign_and_autofill_and_submit_transaction,
+    safe_sign_and_submit_transaction,
     send_reliable_submission,
 )
 from xrpl.models.transactions import SignerListSet, EscrowCreate
