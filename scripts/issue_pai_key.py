@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """
 Phase‑0 demo: mint a PAI Key on XRPL test‑net.
-Compatible with xrpl‑py 4.1.0 .
+Works with xrpl‑py 4.1.0 .
 """
-
 import argparse, time
 from xrpl.clients import JsonRpcClient
 from xrpl.wallet import Wallet
@@ -27,22 +26,20 @@ def wait_validation(tx_hash: str) -> None:
 def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("--seed", required=True, help="human secret seed (s...)")
-    p.add_argument("--agent", required=True, help="agent address (r...)")
+    p.add_argument("--agent", required=True, help="agent classic address (r...)")
     p.add_argument("--limit", type=int, default=100, help="XRP escrow amount")
     args = p.parse_args()
 
-    human = Wallet.from_seed(args.seed)  # ⇦ correct constructor for 4.x
+    human = Wallet.from_seed(args.seed)
 
-    # 1️⃣ grant the agent signer rights (weight 1, quorum 1)
+    # 1) grant agent signer rights
     signer_tx = SignerListSet(
         account=human.classic_address,
         signer_quorum=1,
-        signer_entries=[
-            SignerEntry(account=args.agent, signer_weight=1)
-        ],
+        signer_entries=[SignerEntry(account=args.agent, signer_weight=1)],
     )
 
-    # 2️⃣ lock funds in escrow to the agent
+    # 2) lock funds in escrow to the agent
     escrow_tx = EscrowCreate(
         account=human.classic_address,
         destination=args.agent,
@@ -50,7 +47,7 @@ def main() -> None:
     )
 
     for tx in (signer_tx, escrow_tx):
-            resp = sign_and_submit(client, human, tx)  # client, wallet, tx  ✅
+        resp = sign_and_submit(client, human, tx)  # correct argument order
         tx_hash = resp.result["hash"]
         print("Submitted:", tx_hash)
         wait_validation(tx_hash)
