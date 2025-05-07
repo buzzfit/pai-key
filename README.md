@@ -65,8 +65,13 @@
 git clone https://github.com/buzzfit/pai-key.git
 cd pai-key/scripts
 python -m pip install -r requirements.txt
-python issue_pai_key.py --seed <user-secret> --agent <agent-pubkey> --limit 100 --deadline 48h
-python agent_listener.py --agent <agent-pubkey>
+
+# 1) open one terminal and start the listener (watch BOTH accounts)
+python agent_listener.py --agent <agent-address> --human <human-address>
+
+# 2) in a second terminal, mint the PAI Key
+python issue_pai_key.py --seed <human-secret-seed> --agent <agent-address> --limit 100
+
 ```
 You’ll see PAI Key minted → delegation confirmed in the terminal.
 
