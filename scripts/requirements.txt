@@ -1,5 +1,6 @@
-xrpl-py==2.6.0
-websockets==11.0.3
+xrpl-py==4.1.0
+websockets>=12,<13
+
 
 
 
