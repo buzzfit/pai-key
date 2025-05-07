@@ -30,6 +30,16 @@ async def listen(agent_addr: str) -> None:
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--agent", required=True, help="agent classic address (starts with r)")
-    args = ap.parse_args()
-    asyncio.run(listen(args.agent))
+   # add new CLI arg
+ap.add_argument("--human", required=True, help="human classic address (r...)")
+...
+async def listen(agent, human):
+    async with websockets.connect(WS_URL) as ws:
+        await ws.send(json.dumps({
+            "command": "subscribe",
+            "accounts": [agent, human]        # ← watch BOTH
+        }))
+...
+if __name__ == "__main__":
+    ...
+    asyncio.run(listen(args.agent, args.human))
