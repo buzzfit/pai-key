@@ -1,13 +1,9 @@
 #!/usr/bin/env python3
 """
-Mint a PAI Key on the XRPL *test‑net*.
-
-Example:
-python issue_pai_key.py \
-  --seed s████HUMAN_SECRET \
-  --agent r████AGENT_ADDRESS \
-  --limit 100
+Phase‑0 demo: mint a PAI Key on the XRPL *test‑net*.
+Works on xrpl‑py ≥ 4.0 (uses Wallet.from_seed + sign_and_submit).
 """
+
 import argparse, time
 from xrpl.clients import JsonRpcClient
 from xrpl.wallet import Wallet
@@ -30,16 +26,16 @@ def wait_validation(tx_hash: str) -> None:
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--seed", required=True, help="human *secret* seed (starts with s)")
-    ap.add_argument("--agent", required=True, help="agent classic address (starts with r)")
-    ap.add_argument("--limit", type=int, default=100, help="XRP escrow size")
-    args = ap.parse_args()
+    p = argparse.ArgumentParser()
+    p.add_argument("--seed", required=True, help="human secret seed (s...)")
+    p.add_argument("--agent", required=True, help="agent classic address (r...)")
+    p.add_argument("--limit", type=int, default=100, help="XRP escrow size")
+    args = p.parse_args()
 
     # create wallet object from seed
-    human = Wallet(seed=args.seed)
+    human = Wallet.from_seed(args.seed)
 
-    # 1) give the agent delegated signing rights
+    # 1) grant agent signer rights
     signer_tx = SignerListSet(
         account=human.classic_address,
         signer_quorum=1,
@@ -48,7 +44,7 @@ def main() -> None:
         }],
     )
 
-    # 2) lock funds in an escrow to the agent
+    # 2) lock funds in escrow to the agent
     escrow_tx = EscrowCreate(
         account=human.classic_address,
         destination=args.agent,
@@ -56,8 +52,8 @@ def main() -> None:
     )
 
     for tx in (signer_tx, escrow_tx):
-        result = sign_and_submit(tx, client, human)  # auto‑fill, sign, submit
-        tx_hash = result.result["hash"]
+        resp = sign_and_submit(tx, client, human)   # auto‑fill, sign, submit
+        tx_hash = resp.result["hash"]
         print("Submitted:", tx_hash)
         wait_validation(tx_hash)
 
