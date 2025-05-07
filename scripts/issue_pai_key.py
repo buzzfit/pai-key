@@ -1,39 +1,36 @@
 #!/usr/bin/env python3
 """
-Mint a PAI Key on XRPL test‑net.
+Mint a PAI Key on XRPL test‑net (works on xrpl‑py 4.x).
 """
 
 import argparse, time
 from xrpl.clients import JsonRpcClient
 from xrpl.wallet import Wallet
-from xrpl.transaction import autofill_and_sign
+from xrpl.transaction import (
+    safe_sign_and_autofill_and_submit_transaction,
+)
 from xrpl.models.transactions import SignerListSet, EscrowCreate
+from xrpl.models.requests import Tx
 
 RPC = "https://s.altnet.rippletest.net:51234"
 client = JsonRpcClient(RPC)
 
-def submit_and_wait(tx, wallet):
-    signed = autofill_and_sign(tx, wallet, client)
-    tx_hash = signed.get_hash()
-    client.submit(signed)
-    print("Submitted:", tx_hash)
-    # simple polling loop
+def wait_validation(tx_hash):
     while True:
-        res = client.request({"id": 1, "command": "tx", "transaction": tx_hash})
+        res = client.request(Tx(transaction=tx_hash))
         if res.result.get("validated"):
             print("✅ Validated:", tx_hash)
             return
         time.sleep(2)
 
 def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--seed", required=True, help="human secret seed (s...)")
-    ap.add_argument("--agent", required=True, help="agent address (r...)")
-    ap.add_argument("--limit", type=int, default=100)
-    ap.add_argument("--deadline", default="48h")  # placeholder
-    args = ap.parse_args()
+    p = argparse.ArgumentParser()
+    p.add_argument("--seed", required=True, help="human secret seed (s...)")
+    p.add_argument("--agent", required=True, help="agent address (r...)")
+    p.add_argument("--limit", type=int, default=100)
+    args = p.parse_args()
 
-    human = Wallet(seed=args.seed)  # <‑‑ removed sequence param
+    human = Wallet(seed=args.seed)
 
     signer_tx = SignerListSet(
         account=human.classic_address,
@@ -42,15 +39,16 @@ def main():
             "SignerEntry": {"Account": args.agent, "SignerWeight": 1}
         }],
     )
-
     escrow_tx = EscrowCreate(
         account=human.classic_address,
         destination=args.agent,
         amount=str(args.limit * 1_000_000),  # XRP → drops
     )
 
-    submit_and_wait(signer_tx, human)
-    submit_and_wait(escrow_tx, human)
+    for tx in (signer_tx, escrow_tx):
+        stx = safe_sign_and_autofill_and_submit_transaction(tx, human, client)
+        print("Submitted:", stx.result["tx_json"]["hash"])
+        wait_validation(stx.result["tx_json"]["hash"])
 
 if __name__ == "__main__":
     main()
