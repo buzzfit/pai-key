@@ -50,7 +50,7 @@ def main() -> None:
     )
 
     for tx in (signer_tx, escrow_tx):
-        resp = sign_and_submit(tx, human, client)  # tx, wallet, client
+            resp = sign_and_submit(client, human, tx)  # client, wallet, tx  ✅
         tx_hash = resp.result["hash"]
         print("Submitted:", tx_hash)
         wait_validation(tx_hash)
