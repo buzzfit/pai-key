@@ -99,13 +99,19 @@ Confirm transaction status anytime by pasting the hash into https://testnet.xrpl
 git clone https://github.com/buzzfit/pai-key.git
 cd pai-key/scripts
 python -m pip install -r requirements.txt
+```
+
 
 # 1) open one terminal and start the listener (watch BOTH accounts)
+```bash
 python agent_listener.py \
   --agent <agent-address‑r...> \
   --human <human-address‑r...>
+```
 
-# 2) in a second terminal, mint the PAI Key
+
+# 2) in a second terminal, mint the PAI Key
+```bash
 python issue_pai_key.py \
   --seed  <human-secret‑seed‑s...> \
   --agent <agent-address‑r...> \
