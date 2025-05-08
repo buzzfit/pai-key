@@ -60,6 +60,40 @@
 ---
 
 ## 🚀 Quick Start (Phase‑0 Demo)
+💡 Before you run the demo
+Create two separate Test‑net wallets (one Human, one Agent):
+
+Open the XRPL Test‑net faucet → https://xrpl.org/xrp-testnet-faucet.html
+
+Click Generate → copy the Secret (s…) and Address (r…).
+    • This is your Human wallet.
+
+Click Generate again → copy that wallet’s Address (r…).
+    • This is your Agent wallet. You do not need its secret for the Phase‑0 demo.
+
+Keep these three values handy:
+         human_secret = sXXXXXXXXXXXXXXXXXXXXXXXX     human_address = rXXXXXXXXXXXXXXXXXXXXXXXX     agent_address = rXXXXXXXXXXXXXXXXXXXXXXXX     
+
+Where to paste each value in the scripts
+
+Command	Argument	Paste this value
+agent_listener.py	--human	human_address (rX…)
+--agent	agent_address (rX…)
+issue_pai_key.py	--seed	human_secret (sX…)
+--agent	agent_address (rX…)
+
+Run order
+
+Start the listener first (so you don’t miss the SignerList event).
+
+In a second terminal run the issuer.
+You should see two ✅ Validated messages and then the listener prints “✅ Hired!”.
+
+
+
+Confirm transaction status anytime by pasting the hash into https://testnet.xrpl.org.
+
+
 
 ```bash
 git clone https://github.com/buzzfit/pai-key.git
@@ -67,13 +101,20 @@ cd pai-key/scripts
 python -m pip install -r requirements.txt
 
 # 1) open one terminal and start the listener (watch BOTH accounts)
-python agent_listener.py --agent <agent-address> --human <human-address>
+python agent_listener.py \
+  --agent <agent-address‑r...> \
+  --human <human-address‑r...>
 
 # 2) in a second terminal, mint the PAI Key
-python issue_pai_key.py --seed <human-secret-seed> --agent <agent-address> --limit 100
+python issue_pai_key.py \
+  --seed  <human-secret‑seed‑s...> \
+  --agent <agent-address‑r...> \
+  --limit 100
 
 ```
-You’ll see PAI Key minted → delegation confirmed in the terminal.
+You’ll see “Submitted → ✅ Validated” twice, followed by “✅ Hired!” in the listener, confirming the PAI Key was minted and the delegation completed successfully.
+
+
 
 🤝 Contribute
 | Help wanted              | Highlights                                    |
