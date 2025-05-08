@@ -137,6 +137,7 @@ https://pai-key.org (redirects here while landing page is under construction)
 
 ⚖️ License
 MIT © 2025 PAI Key Contributors
+```bash
 # ↓↓↓ EDIT ONLY THESE THREE LINES ↓↓↓
 HUMAN_SECRET="sXXXXXXXXXXXXXXXXXXXXXXXX"
 HUMAN_ADDR="rYYYYYYYYYYYYYYYYYYYYYYYY"
@@ -148,3 +149,4 @@ python agent_listener.py --agent "$AGENT_ADDR" --human "$HUMAN_ADDR"
 
 # --- terminal 2 (issuer) ---
 python issue_pai_key.py --seed "$HUMAN_SECRET" --agent "$AGENT_ADDR" --limit 100
+```
