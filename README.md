@@ -61,40 +61,35 @@
 
 ## 🚀 Quick Start (Phase‑0 Demo)
 💡 Before you run the demo
-Create two separate Test‑net wallets (one Human, one Agent):
+### 🎟️ Generate Your Test‑net Wallets
 
-Open the XRPL Test‑net faucet → https://xrpl.org/xrp-testnet-faucet.html
+1. Open the [XRPL Test‑net faucet](https://xrpl.org/xrp-testnet-faucet.html).  
+2. **Click Generate** → copy the **Secret** (`s…`) and **Address** (`r…`).  
+   *This is your **Human** wallet.*  
+3. **Click Generate** again → copy the new **Address** (`r…`).  
+   *This is your **Agent** wallet (no secret needed for Phase‑0).*
 
-Click Generate → copy the Secret (s…) and Address (r…).
-    • This is your Human wallet.
+| Label           | Example format |
+|-----------------|----------------|
+| **human_secret** | `sXXXXXXXX…` |
+| **human_address** | `rYYYYYYYY…` |
+| **agent_address** | `rZZZZZZZZ…` |
 
-Click Generate again → copy that wallet’s Address (r…).
-    • This is your Agent wallet. You do not need its secret for the Phase‑0 demo.
-
-Keep these three values handy:
-         human_secret = sXXXXXXXXXXXXXXXXXXXXXXXX     human_address = rXXXXXXXXXXXXXXXXXXXXXXXX     agent_address = rXXXXXXXXXXXXXXXXXXXXXXXX     
-
-Where to paste each value in the scripts
-
-Command	Argument	Paste this value
-agent_listener.py	--human	human_address (rX…)
---agent	agent_address (rX…)
-issue_pai_key.py	--seed	human_secret (sX…)
---agent	agent_address (rX…)
-
-Run order
-
-Start the listener first (so you don’t miss the SignerList event).
-
-In a second terminal run the issuer.
-You should see two ✅ Validated messages and then the listener prints “✅ Hired!”.
+| Script&nbsp;&nbsp; | Argument | Paste this value |
+|--------------------|----------|------------------|
+| `agent_listener.py` | `--human` | **human_address** (`rY…`) |
+|                     | `--agent` | **agent_address** (`rZ…`) |
+| `issue_pai_key.py`  | `--seed`  | **human_secret** (`sX…`) |
+|                     | `--agent` | **agent_address** (`rZ…`) |
 
 
 
-Confirm transaction status anytime by pasting the hash into https://testnet.xrpl.org.
+
+# Run order
 
 
 
+# 1) clone the repo and install the Python dependencies
 ```bash
 git clone https://github.com/buzzfit/pai-key.git
 cd pai-key/scripts
@@ -102,24 +97,18 @@ python -m pip install -r requirements.txt
 ```
 
 
-# 1) open one terminal and start the listener (watch BOTH accounts)
+# 2) open one terminal and start the listener (watch BOTH terminals so you don’t miss the SignerList event)
 ```bash
-python agent_listener.py \
-  --agent <agent-address‑r...> \
-  --human <human-address‑r...>
+python agent_listener.py --agent <agent-address-r...> --human <human-address-r...>
 ```
 
 
-# 2) in a second terminal, mint the PAI Key
+# 3) in a second terminal, mint the PAI Key
 ```bash
-python issue_pai_key.py \
-  --seed  <human-secret‑seed‑s...> \
-  --agent <agent-address‑r...> \
-  --limit 100
-
+python issue_pai_key.py --seed <human-secret-seed-s...> --agent <agent-address-r...> --limit 100
 ```
 You’ll see “Submitted → ✅ Validated” twice, followed by “✅ Hired!” in the listener, confirming the PAI Key was minted and the delegation completed successfully.
-
+Confirm transaction status anytime by pasting the hash into https://testnet.xrpl.org.
 ---
 
 ## 📄 Documentation
