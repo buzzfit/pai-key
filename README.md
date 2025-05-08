@@ -114,6 +114,15 @@ python issue_pai_key.py \
 ```
 You’ll see “Submitted → ✅ Validated” twice, followed by “✅ Hired!” in the listener, confirming the PAI Key was minted and the delegation completed successfully.
 
+---
+
+## 📄 Documentation
+
+| Doc | Purpose |
+|-----|---------|
+| [Whitepaper](docs/WHITEPAPER.md) | High‑level problem statement, design goals, threat model |
+| [Technical Plan](docs/TECH_PLAN.md) | Detailed architecture, module breakdown, rollout phases |
+| [Uniqueness Analysis](docs/UNIQUENESS.md) | Comparison to Sovrin, ENS, ERC‑4337 wallets, Ceramic, etc. |
 
 
 🤝 Contribute
