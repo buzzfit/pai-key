@@ -11,10 +11,10 @@
 ### Why PAI Key is unusual
 
 1. **Same chain** provides delegation + escrow with no solidity bytecode.  
-2. Fees stay < $0.001 even at 1,500 TPS capacity :contentReference[oaicite:8]{index=8}.  
-3. DID anchoring (XLS‑40) lets the key move across chains without bridges :contentReference[oaicite:9]{index=9}.  
-4. Hooks roadmap enables on‑chain Wasm proofs instead of Solidity or Cairo contracts :contentReference[oaicite:10]{index=10}.  
-5. Oracle‑agnostic: UMA for objective tasks :contentReference[oaicite:11]{index=11}, Kleros for subjective :contentReference[oaicite:12]{index=12}.
+2. Fees stay < $0.001 even at 1,500 TPS capacity..  
+3. DID anchoring (XLS‑40) lets the key move across chains without bridges. 
+4. Hooks roadmap enables on‑chain Wasm proofs instead of Solidity or Cairo contracts.  
+5. Oracle‑agnostic: UMA for objective tasks.
 
 **Uniqueness rating: 8.5 / 10** — Few projects natively combine signer delegation, escrow, and DID on a low‑fee L1.
 
