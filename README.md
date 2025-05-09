@@ -110,6 +110,7 @@ python issue_pai_key.py --seed <human-secret-seed-s...> --agent <agent-address-r
 You’ll see “Submitted → ✅ Validated” twice, followed by “✅ Hired!” in the listener, confirming the PAI Key was minted and the delegation completed successfully.
 Confirm transaction status anytime by pasting the hash into https://testnet.xrpl.org.
 ---
+![pai_full_demo_best](https://github.com/user-attachments/assets/c55556e8-b2a3-46e0-8266-262248c5867e)
 
 ## 📄 Documentation
 
