@@ -1,5 +1,5 @@
-* **issue_pai_key.py** — mints SignerListSet + EscrowCreate via `sign_and_submit(tx, client, wallet)` (xrpl‑py 4.x) :contentReference[oaicite:6]{index=6}  
-* **agent_listener.py** — WebSocket `subscribe` to human+agent addresses; fires on SignerListSet hash :contentReference[oaicite:7]{index=7}  
+* **issue_pai_key.py** — mints SignerListSet + EscrowCreate via `sign_and_submit(tx, client, wallet)` (xrpl‑py 4.x)   
+* **agent_listener.py** — WebSocket `subscribe` to human+agent addresses; fires on SignerListSet hash  
 
 ## 2  Modules
 
