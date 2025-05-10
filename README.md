@@ -134,7 +134,7 @@ Confirm transaction status anytime by pasting the hash into https://testnet.xrpl
 Open an issue or fork the repo.
 
 🌐 Project Site
-https://pai-key.org (redirects here while landing page is under construction)
+https://pai-key.org 
 
 ⚖️ License
 MIT © 2025 PAI Key Contributors
