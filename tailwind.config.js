@@ -4,8 +4,8 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Darkened matrix green (from #00FF41 to a deeper #00AA2B)
-        'matrix-green': '#00AA2B',
+        // Further darkened matrix green (from #00AA2B to approximately #005517)
+        'matrix-green': '#005517',
         'matrix-dark': '#0f0f0f',
       },
     },
