@@ -143,4 +143,4 @@ export default function Home() {
   );
 }
 
-// app/whitepaper/page.jsx remains unchanged
+// app/whitepaper/page.jsx unchanged
