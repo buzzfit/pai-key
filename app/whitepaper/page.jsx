@@ -9,38 +9,41 @@ export default function WhitepaperPage() {
     <section className="bg-white py-20">
       <div className="max-w-4xl mx-auto px-4 space-y-8">
         {/* Title Section */}
-        <h1 className="text-6xl font-extrabold text-gray-900 mb-8 text-center">
+        <h1 className="text-6xl font-extrabold text-gray-900 text-center mb-8">
           PAI Key Whitepaper
         </h1>
 
-        {/* Problem Statement with background band */}
+        {/* Problem Statement with divider */}
         <div className="bg-gray-50 p-8 rounded-lg">
-          <h2 className="text-2xl font-semibold mb-4">1  Problem Statement</h2>
+          <h2 className="text-2xl font-semibold mb-2">1  Problem Statement</h2>
+          <hr className="border-gray-300 border-t-2 w-20 mx-auto mb-4" />
           <p>
             Human users want to hire autonomous AI agents (bots, LLM chains, IoT robots) to act on their behalf, but today there is <strong>no on-chain primitive</strong> that delegates limited signing rights <em>and</em> escrows payment under mutually-verifiable conditions. Existing marketplaces rely on custodial APIs or off-chain OAuth tokens, which can be phished, revoked, or over-spent.
           </p>
         </div>
 
-        {/* Design Goals with alternate band */}
+        {/* Design Goals with divider */}
         <div className="bg-white p-8 rounded-lg">
-          <h2 className="text-2xl font-semibold mb-4">2  Design Goals</h2>
+          <h2 className="text-2xl font-semibold mb-2">2  Design Goals</h2>
+          <hr className="border-gray-300 border-t-2 w-20 mx-auto mb-4" />
           <ul className="list-disc list-inside space-y-2">
             <li><strong>Permissioned delegation</strong>: AI agent can sign only the transactions the human allows.</li>
             <li><strong>Symmetric trust</strong>: funds are locked on-chain until the agent proves task completion.</li>
             <li><strong>No smart-contract bytecode</strong>: use XRPL’s native SignerList + Escrow primitives to avoid code-level exploits.</li>
-            <li><strong>Low fees & speed</strong>: keep cost ≤ 20 drops and latency &lt; 10 s per hire cycle.</li>
+            <li><strong>Low fees & speed</strong>: keep cost ≤ 20 drops and latency &lt; 10 s per hire cycle.</li>
             <li><strong>Composable</strong>: future Hooks can enforce binary proofs; UMA / Kleros can arbitrate subjective disputes.</li>
           </ul>
         </div>
 
-        {/* Protocol Overview with background band */}
+        {/* Protocol Overview with divider */}
         <div className="bg-gray-50 p-8 rounded-lg">
-          <h2 className="text-2xl font-semibold mb-4">3  Protocol Overview</h2>
+          <h2 className="text-2xl font-semibold mb-2">3  Protocol Overview</h2>
+          <hr className="border-gray-300 border-t-2 w-20 mx-auto mb-4" />
           <ol className="list-decimal list-inside space-y-4">
             <li>
-              <strong>Mint PAI Key</strong>
+              <strong>Mint PAI Key</strong>
               <ul className="list-disc list-inside mt-2 space-y-1">
-                <li>Human submits <code>SignerListSet</code> (agent weight = 1, quorum = 1).</li>
+                <li>Human submits <code>SignerListSet</code> (agent weight = 1, quorum = 1).</li>
                 <li>Simultaneously submits <code>EscrowCreate</code> locking N XRP to agent.</li>
               </ul>
             </li>
@@ -51,9 +54,15 @@ export default function WhitepaperPage() {
           </ol>
         </div>
 
-        {/* Threat Model with alternate band */}
+        {/* Threat Model with shield icon and divider */}
         <div className="bg-white p-8 rounded-lg">
-          <h2 className="text-2xl font-semibold mb-4">4  Threat Model</h2>
+          <h2 className="text-2xl font-semibold mb-2">4  Threat Model</h2>
+          <div className="flex items-center justify-center mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 22l8-4V10l-8-4-8 4v8l8 4z" />
+            </svg>
+            <hr className="border-gray-300 border-t-2 flex-grow mx-2" />
+          </div>
           <table className="table-auto w-full border-collapse border border-gray-300">
             <thead className="bg-gray-100">
               <tr>
@@ -64,7 +73,7 @@ export default function WhitepaperPage() {
             <tbody>
               <tr>
                 <td className="border border-gray-300 px-4 py-2">Agent exceeds scope</td>
-                <td className="border border-gray-300 px-4 py-2">XRPL enforces quorum 1 & spend limits (no own-key)</td>
+                <td className="border border-gray-300 px-4 py-2">XRPL enforces quorum 1 & spend limits (no own-key)</td>
               </tr>
               <tr>
                 <td className="border border-gray-300 px-4 py-2">Human withholds funds</td>
@@ -72,7 +81,7 @@ export default function WhitepaperPage() {
               </tr>
               <tr>
                 <td className="border border-gray-300 px-4 py-2">Fee starvation</td>
-                <td className="border border-gray-300 px-4 py-2">Client library auto-fills dynamic fee; user can bump &gt; 10 drops</td>
+                <td className="border border-gray-300 px-4 py-2">Client library auto-fills dynamic fee; user can bump &gt; 10 drops</td>
               </tr>
               <tr>
                 <td className="border border-gray-300 px-4 py-2">Key compromise</td>
@@ -82,9 +91,10 @@ export default function WhitepaperPage() {
           </table>
         </div>
 
-        {/* Roadmap with background band */}
+        {/* Roadmap with divider */}
         <div className="bg-gray-50 p-8 rounded-lg">
-          <h2 className="text-2xl font-semibold mb-4">5  Roadmap</h2>
+          <h2 className="text-2xl font-semibold mb-2">5  Roadmap</h2>
+          <hr className="border-gray-300 border-t-2 w-20 mx-auto mb-4" />
           <ul className="list-disc list-inside space-y-2">
             <li><strong>Phase 0</strong> (complete): SignerList + Escrow POC on test-net.</li>
             <li><strong>Phase 1</strong> (Q3 2025): Hooks amendment live → on-chain WASM proofs.</li>
