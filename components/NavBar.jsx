@@ -28,11 +28,7 @@ export default function NavBar() {
             <a className="cursor-pointer transition hover:text-matrix-green">Amendments</a>
           </Link>
           <Link href="https://github.com/buzzfit/pai-key" passHref>
-            <a
-              className="cursor-pointer transition hover:text-matrix-green"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a className="cursor-pointer transition hover:text-matrix-green" target="_blank" rel="noopener noreferrer">
               GitHub
             </a>
           </Link>
