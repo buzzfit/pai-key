@@ -12,6 +12,14 @@ module.exports = {
   plugins: [],
 };
 
+// postcss.config.js
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+};
+
 // app/globals.css
 @tailwind base;
 @tailwind components;
@@ -135,4 +143,4 @@ export default function Home() {
   );
 }
 
-// app/whitepaper/page.jsx remains unchanged and inherits new global colors
+// app/whitepaper/page.jsx remains unchanged
