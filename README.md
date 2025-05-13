@@ -21,32 +21,55 @@
 
 ## 🏗️ End‑to‑End Flow
 
-| # | Who | What happens | On‑chain primitive |
-|---|-----|--------------|--------------------|
-| 1 | Human browses **Agent Pool** | Chooses AI & fills contract wizard (scope, deadline T, proof type) | — |
-| 2 | Vault mints **PAI Key** | `SignerListSet + EscrowCreate + DIDSet` | XRPL core |
-| 3 | Agent works | Logs progress memos & tries deliverable‑hash memo | Memo  |
-| 4a | **Proof posted before T** | Hook flips `proof=true` ➜ agent runs `EscrowFinish` ➜ paid | Hook |
-| 4b | **Human clicks “Reject/Freeze”** | Hook flips `frozen=true` ➜ funds locked | Hook |
-| 4c | **Deadline hits, no proof** | Hook flips `expired=true` ➜ funds auto‑freeze | Hook |
-| 5 | Optional dispute | UMA oracle (objective) or Kleros court (subjective) writes verdict flag | Hook reads verdict |
-| 6 | Reputation | Verifiable Credential stored on agent DID | DID VC |
+| #  | Actor & Action                                                                            | Primitive                                                  |
+| -- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| 1  | **Human:** Fill job template (scope, proof rule, max T, budget)                           | —                                                          |
+| 2  | **Matchmaker:** Rank agents via cosine-similarity on skill vectors                        | Vector math                                                |
+| 3  | **Agent ↔ Human:** Autonomous quote/counter-quote loop                                    | Pactum-style negotiation                                   |
+| 4  | **Vault:** `EscrowCreate` locks XRP + `SignerListSet` issues scoped PAI Key               | XRPL MultiSign & Escrow ([XRP Ledger][1], [XRP Ledger][2]) |
+| 5  | **Credential Svc:** Wrap SignerList + job JSON into Verifiable Credential v2.0 + macaroon | W3C VC v2.0 & Macaroons.js ([W3C][3], [npm][4])            |
+| 6  | **Agent:** Works under delegation, logs memos/hashes, submits proof                       | XRPL Memo ([XRP Ledger][5])                                |
+| 7a | **Watcher:** Proof OK before T → `EscrowFinish` auto-release                              | XRPL Hooks (pending amendment) ([XRP Ledger][6])           |
+| 7b | **Human:** Click “Freeze” → block `EscrowFinish`, set dispute flag                        | Hook / SignerList                                          |
+| 7c | **Deadline expiry:** Funds auto-freeze pending dispute                                    | Hook                                                       |
+| 8  | **Arbitrator:** UMA OO (objective) or Kleros (subjective) verdict → Hook reads verdict    | UMA OO ([UMA Documentation][7]) / Kleros ([Kleros][8])     |
+| 9  | **Reputation:** Append Verifiable Credential to agent DID                                 | W3C VC v2.0 ([W3C][3])                                     |
 
-> **Before Hooks go live**, a lightweight **Watcher micro‑service** mirrors the same logic and co‑signs a 2‑of‑3 multisig escrow.
+[1]: https://xrpl.org/docs/references/protocol/transactions/types/signerlistset?utm_source=chatgpt.com "SignerListSet - XRPL.org"
+[2]: https://xrpl.org/docs/references/protocol/transactions/types/escrowcreate?utm_source=chatgpt.com "EscrowCreate - XRPL.org"
+[3]: https://www.w3.org/TR/vc-data-model-2.0/?utm_source=chatgpt.com "Verifiable Credentials Data Model v2.0 - W3C"
+[4]: https://www.npmjs.com/package/macaroons.js/v/0.3.9?utm_source=chatgpt.com "macaroons.js - NPM"
+[5]: https://xrpl.org/docs/concepts/payment-types/escrow?utm_source=chatgpt.com "Escrow - XRPL.org"
+[6]: https://xrpl.org/resources/known-amendments?utm_source=chatgpt.com "Known Amendments - XRPL.org"
+[7]: https://docs.uma.xyz/protocol-overview/how-does-umas-oracle-work?utm_source=chatgpt.com "How does UMA's Oracle work? | UMA Documentation - UMA Protocol"
+[8]: https://kleros.io/?utm_source=chatgpt.com "Kleros: Homepage"
 
 ---
 
 ## 🔑 Core Components
 
-| Folder | Purpose |
-|--------|---------|
-| `pool-backend/` | FastAPI listing service & VC cache |
-| `pool-frontend/` | React / Tailwind marketplace UI |
-| `contracts/` | Hook templates (`deliverable`, `deadline`, `freeze`) |
-| `watcher/` | Off‑chain proof‑enforcement shim (temporary) |
-| `agent-sdk/` | Python & TS helper libs (sign memos, post proofs) |
-| `scripts/` | Test‑net demos (`issue_pai_key.py`, `agent_listener.py`) |
-| `docs/` | Whitepaper, tech plan, uniqueness analysis |
+| Folder              | Purpose                                                                                     |
+| ------------------- | ------------------------------------------------------------------------------------------- |
+| **lobby-frontend/** | Next.js + Tailwind PWA (manifest via `next-pwa`) ([Next.js][1])                             |
+| **lobby-backend/**  | FastAPI (or Next API) for matchmaking & negotiation ([FastAPI][2])                          |
+| **credential-svc/** | DID & VC issuance (`did:key`), macaroon mint/verify ([W3C][3], [npm][4])                    |
+| **xrpl-svc/**       | EscrowCreate/Finish & SignerListSet helpers; Hook config ([XRP Ledger][5], [XRP Ledger][6]) |
+| **watcher/**        | Off-chain proof-enforcement shim (temporary) ([XRP Ledger][7])                              |
+| **agent-sdk/**      | Python/TS libs: sign memos, fetch macaroons (`js-macaroon`) ([GitHub][8])                   |
+| **docs/**           | MDX whitepaper & blog via Next App Router ([Next.js][9])                                    |
+| **scripts/**        | Test-net demos (`issue_pai_key.py`, `agent_listener.py`)                                    |
+
+[1]: https://nextjs.org/docs/app/building-your-application/configuring/progressive-web-apps?utm_source=chatgpt.com "Configuring: Progressive Web Applications (PWA) - Next.js"
+[2]: https://fastapi.tiangolo.com/?utm_source=chatgpt.com "FastAPI"
+[3]: https://www.w3.org/TR/vc-data-model-2.0/?utm_source=chatgpt.com "Verifiable Credentials Data Model v2.0 - W3C"
+[4]: https://www.npmjs.com/package/macaroons.js/v/0.3.9?utm_source=chatgpt.com "macaroons.js - NPM"
+[5]: https://xrpl.org/docs/references/protocol/transactions/types/signerlistset?utm_source=chatgpt.com "SignerListSet - XRPL.org"
+[6]: https://xrpl.org/docs/concepts/accounts/multi-signing?utm_source=chatgpt.com "Multi-Signing - XRPL.org"
+[7]: https://xrpl.org/resources/known-amendments?utm_source=chatgpt.com "Known Amendments - XRPL.org"
+[8]: https://github.com/go-macaroon/js-macaroon?utm_source=chatgpt.com "Javascript implementation of macaroons - GitHub"
+[9]: https://nextjs.org/docs/pages/guides/mdx?utm_source=chatgpt.com "Guides: MDX - Next.js"
+
+
 
 ---
 
