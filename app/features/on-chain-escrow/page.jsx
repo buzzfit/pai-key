@@ -2,7 +2,7 @@
 export const metadata = {
   title: 'On-Chain Escrow – PAI Key',
   description:
-    'Deep dive: How on-chain escrow locks funds on the XRP Ledger until deliverables are verified.',
+    'Lock and release payments automatically using XRPL EscrowCreate/EscrowFinish.',
 };
 
 export default function OnChainEscrowPage() {
@@ -11,46 +11,52 @@ export default function OnChainEscrowPage() {
       <h1>On-Chain Escrow</h1>
 
       <p>
-        On the XRP Ledger, <strong>EscrowCreate</strong> transactions let you lock up XRP under explicit
-        conditions—either after a specified time or once a cryptographic condition is satisfied. When
-        processed, the ledger creates an immutable escrow object that holds your funds until those criteria
-        are met.
+        Secure your vendor payments with XRPL’s built-in escrow:
+        submit an <code>EscrowCreate</code>, and funds remain locked until
+        conditions are met. No smart-contract code required.
       </p>
 
-      <h2>EscrowCreate Transaction</h2>
-      <p>
-        Submit <code>EscrowCreate</code> with parameters:
-        <code>Amount</code>, <code>Destination</code>,
-        <code>Condition</code>, <code>FinishAfter</code>, and/or <code>CancelAfter</code>. The ledger then
-        instantiates an escrow object safeguarding your XRP.
-      </p>
-
-      <h2>EscrowFinish Transaction</h2>
-      <p>
-        To release funds, call <code>EscrowFinish</code>. It validates the cryptographic proof or timeout
-        and transfers the XRP to the designated recipient. PAI Key’s off-chain watcher or on-chain Hooks
-        can automate this step for you.
-      </p>
-
-      <h2>Use Cases in PAI Key</h2>
+      <h2>EscrowCreate Parameters</h2>
       <ul>
-        <li>
-          At hire time, PAI Key’s UI submits both <code>SignerListSet</code> and <code>EscrowCreate</code>
-          in one go.
-        </li>
-        <li>
-          Once deliverables meet the agreed criteria, the watcher or Hook triggers
-          <code>EscrowFinish</code>, releasing funds.
-        </li>
+        <li><code>Amount</code>: drops of XRP to lock</li>
+        <li><code>Destination</code>: vendor’s XRPL address</li>
+        <li><code>Condition</code>: SHA-256 hash lock (optional)</li>
+        <li><code>FinishAfter</code>: timestamp earliest release</li>
+        <li><code>CancelAfter</code>: deadline to refund</li>
       </ul>
 
-      <h2>Example Flow</h2>
+      <h2>Releasing Funds</h2>
+      <p>
+        Call <code>EscrowFinish</code> when you have vendor proof. You can automate
+        this via an off-chain watcher or—once enabled—the <a
+          href="https://xrpl.org/hooks.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-matrix-green hover:underline"
+        >
+          Hooks
+        </a> amendment.
+      </p>
+
+      <h2>Real-World Use</h2>
       <ol>
-        <li>User clicks “Hire Agent”—UI builds & submits <code>EscrowCreate</code>.</li>
-        <li>Agent acts under your delegated signer-list permissions.</li>
-        <li>Proof arrives—watcher calls <code>EscrowFinish</code>, freeing the XRP.</li>
-        <li>If no proof by deadline, you or a Hook can call <code>EscrowCancel</code> to recover funds.</li>
+        <li>At hire time, UI fires <code>EscrowCreate</code> and <code>SignerListSet</code> together.</li>
+        <li>Vendor delivers work and submits a cryptographic proof hash.</li>
+        <li>Watcher/Hook triggers <code>EscrowFinish</code>; or user clicks “Release”/“Freeze.”</li>
       </ol>
+
+      <h2>Learn More</h2>
+      <p>
+        XRPL Escrow docs:{" "}
+        <a
+          href="https://xrpl.org/escrow.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-matrix-green hover:underline"
+        >
+          EscrowCreate & EscrowFinish
+        </a>.
+      </p>
     </article>
   );
 }
