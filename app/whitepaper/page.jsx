@@ -1,115 +1,193 @@
 // app/whitepaper/page.jsx
 export const metadata = {
-  title: 'PAI Key Whitepaper',
-  description: 'Detailed design, protocol, and roadmap of the PAI Key system'
+  title: 'PAI Key Whitepaper v1.1',
+  description: 'Vision, architecture, and roadmap for PAI Key’s vendor-driven flow on XRPL.',
 };
 
 export default function WhitepaperPage() {
   return (
-    <section className="bg-white py-12 sm:py-20">
-      <div className="max-w-3xl sm:max-w-4xl mx-auto px-4 sm:px-6 space-y-6 sm:space-y-8">
-        {/* Title Section */}
-        <h1 className="text-4xl sm:text-6xl font-extrabold text-gray-900 text-center">
-          PAI Key Whitepaper
-        </h1>
+    <article className="max-w-3xl mx-auto py-16 px-4 prose prose-lg dark:prose-invert">
+      <h1>PAI Key Whitepaper</h1>
+      <p><strong>Version 1.1&nbsp;– June 2025</strong></p>
 
-        {/* Problem Statement with responsive divider */}
-        <div className="bg-gray-50 sm:bg-gray-50 p-4 sm:p-8 rounded-lg">
-          <h2 className="text-xl sm:text-2xl font-semibold mb-2">1  Problem Statement</h2>
-          <hr className="border-gray-300 border-t sm:border-t-2 w-16 sm:w-20 mx-auto mb-4" />
-          <p className="text-base sm:text-lg leading-relaxed">
-            Human users want to hire autonomous AI agents (bots, LLM chains, IoT robots) to act on their behalf, but today there is <strong>no on-chain primitive</strong> that delegates limited signing rights <em>and</em> escrows payment under mutually-verifiable conditions. Existing marketplaces rely on custodial APIs or off-chain OAuth tokens, which can be phished, revoked, or over-spent.
-          </p>
-        </div>
+      <hr />
 
-        {/* Design Goals with alternating backgrounds */}
-        <div className="bg-white p-4 sm:p-8 rounded-lg">
-          <h2 className="text-xl sm:text-2xl font-semibold mb-2">2  Design Goals</h2>
-          <hr className="border-gray-300 border-t sm:border-t-2 w-16 sm:w-20 mx-auto mb-4" />
-          <ul className="list-disc list-inside space-y-1 sm:space-y-2 text-base sm:text-lg">
-            <li><strong>Permissioned delegation</strong>: AI agent can sign only the transactions the human allows.</li>
-            <li><strong>Symmetric trust</strong>: funds are locked on-chain until the agent proves task completion.</li>
-            <li><strong>No smart-contract bytecode</strong>: use XRPL’s native SignerList + Escrow primitives to avoid code-level exploits.</li>
-            <li><strong>Low fees & speed</strong>: keep cost ≤ 20 drops and latency &lt; 10 s per hire cycle.</li>
-            <li><strong>Composable</strong>: future Hooks can enforce binary proofs; UMA / Kleros can arbitrate subjective disputes.</li>
-          </ul>
-        </div>
+      <h2>Executive Summary</h2>
+      <p>
+        A unified PAI Key Lobby delivers hire-to-retire automation for AI “vendors” (software agents, IoT devices,
+        future robots) by combining&nbsp;
+        <a href="https://xrpl.org/multi-signing.html" target="_blank" rel="noopener" className="text-matrix-green hover:underline">
+          XRPL’s least-authority multi-signing
+        </a>, on-chain escrow&nbsp;
+        <a href="https://xrpl.org/escrow.html" target="_blank" rel="noopener" className="text-matrix-green hover:underline">
+          (EscrowCreate/EscrowFinish)
+        </a>, and&nbsp;
+        <a href="https://www.w3.org/TR/vc-data-model/" target="_blank" rel="noopener" className="text-matrix-green hover:underline">
+          W3C Verifiable Credentials v2.0
+        </a>
+        &nbsp;with a wallet-first UX. Users fill a job template, the matchmaker ranks vendors via cosine-similarity,
+        and an autonomous quote loop finalizes price & deadline. Upon acceptance, the frontend triggers an&nbsp;
+        <code>EscrowCreate</code>, the backend issues a scoped PAI Key via&nbsp;
+        <code>SignerListSet</code>, and the contract is wrapped as a VC (or macaroon for legacy APIs). Proofs then
+        drive automatic <code>EscrowFinish</code> or route to UMA/Kleros arbitration. All standards are production-ready
+        today, with Hooks tracked for mainnet adoption.
+      </p>
 
-        {/* Protocol Overview */}
-        <div className="bg-gray-50 p-4 sm:p-8 rounded-lg">
-          <h2 className="text-xl sm:text-2xl font-semibold mb-2">3  Protocol Overview</h2>
-          <hr className="border-gray-300 border-t sm:border-t-2 w-16 sm:w-20 mx-auto mb-4" />
-          <ol className="list-decimal list-inside space-y-2 sm:space-y-4 text-base sm:text-lg">
-            <li>
-              <strong>Mint PAI Key</strong>
-              <ul className="list-disc list-inside ml-4 mt-2 space-y-1">
-                <li>Human submits <code>SignerListSet</code> (agent weight = 1, quorum = 1).</li>
-                <li>Simultaneously submits <code>EscrowCreate</code> locking N XRP to agent.</li>
-              </ul>
-            </li>
-            <li><strong>Agent acts</strong> within delegated scope (spend limits, memos).</li>
-            <li><strong>Proof</strong>: Hook or oracle attests to off-chain deliverable.</li>
-            <li><strong>EscrowFinish</strong> (auto or human click).</li>
-            <li><strong>Revoke / Rotate</strong>: Human can rotate signer list at any time.</li>
-          </ol>
-        </div>
+      <h2>1 Introduction</h2>
+      <p>
+        AI vendors—from chatbots to drones and future robots—need least-authority credentials plus tamper-proof payment
+        rails. The&nbsp;
+        <a href="https://xrpl.org/" target="_blank" rel="noopener" className="text-matrix-green hover:underline">
+          XRP Ledger (XRPL)
+        </a>&nbsp;delivers sub-cent fees, ~4 s finality, and native escrow primitives—ideal for micro-gigs and
+        machine-to-machine commerce.
+      </p>
 
-        {/* Threat Model with icon */}
-        <div className="bg-white p-4 sm:p-8 rounded-lg">
-          <h2 className="text-xl sm:text-2xl font-semibold mb-2">4  Threat Model</h2>
-          <div className="flex items-center justify-center mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 22l8-4V10l-8-4-8 4v8l8 4z" />
-            </svg>
-            <hr className="border-gray-300 border-t sm:border-t-2 flex-grow mx-2" />
-          </div>
-          <table className="table-auto w-full border-collapse border border-gray-300 text-sm sm:text-base">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="border border-gray-300 px-2 sm:px-4 py-1 sm:py-2 text-left">Threat</th>
-                <th className="border border-gray-300 px-2 sm:px-4 py-1 sm:py-2 text-left">Mitigation</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="border border-gray-300 px-2 sm:px-4 py-1 sm:py-2">Agent exceeds scope</td>
-                <td className="border border-gray-300 px-2 sm:px-4 py-1 sm:py-2">XRPL enforces quorum 1 & spend limits (no own-key)</td>
-              </tr>
-              <tr>
-                <td className="border border-gray-300 px-2 sm:px-4 py-1 sm:py-2">Human withholds funds</td>
-                <td className="border border-gray-300 px-2 sm:px-4 py-1 sm:py-2">EscrowFinish can be triggered by on-chain proof or oracle ruling</td>
-              </tr>
-              <tr>
-                <td className="border border-gray-300 px-2 sm:px-4 py-1 sm:py-2">Fee starvation</td>
-                <td className="border border-gray-300 px-2 sm:px-4 py-1 sm:py-2">Client library auto-fills dynamic fee; user can bump &gt; 10 drops</td>
-              </tr>
-              <tr>
-                <td className="border border-gray-300 px-2 sm:px-4 py-1 sm:py-2">Key compromise</td>
-                <td className="border border-gray-300 px-2 sm:px-4 py-1 sm:py-2">Human rotates SignerList; emergency “freeze AI” script</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+      <h2>2 Problem Statement</h2>
+      <ul>
+        <li>Unlimited OAuth tokens expose full-account risk when granted to bots.</li>
+        <li>SSI wallets prove identity but cannot escrow value.</li>
+        <li>Freelance marketplaces rely on costly intermediaries for dispute resolution.</li>
+        <li>Legacy APIs lack native support for Verifiable Credentials.</li>
+      </ul>
 
-        {/* Roadmap with divider */}
-        <div className="bg-gray-50 p-4 sm:p-8 rounded-lg">
-          <h2 className="text-xl sm:text-2xl font-semibold mb-2">5  Roadmap</h2>
-          <hr className="border-gray-300 border-t sm:border-t-2 w-16 sm:w-20 mx-auto mb-4" />
-          <ul className="list-disc list-inside space-y-1 sm:space-y-2 text-base sm:text-lg">
-            <li><strong>Phase 0</strong> (complete): SignerList + Escrow POC on test-net.</li>
-            <li><strong>Phase 1</strong> (Q3 2025): Hooks amendment live → on-chain WASM proofs.</li>
-            <li><strong>Phase 2</strong>: Integrate UMA optimistic oracle for arbitrary payloads.</li>
-            <li><strong>Phase 3</strong>: DID anchoring via XLS-40 for portable PAI Keys.</li>
-          </ul>
-        </div>
+      <h2>3 PAI Key Vision</h2>
+      <p>
+        A public Lobby lists AI vendors with machine-verifiable reputations. Users fill a job template; a matchmaker
+        ranks vendors via cosine-similarity on capability vectors. An autonomous Pactum-style negotiation loop
+        finalizes price & ETA. Funds lock into XRPL escrow, and the vendor receives a delegated PAI Key
+        (<code>SignerListSet</code>) scoped to the job.
+      </p>
 
-        {/* Source Link */}
-        <div className="text-center mt-8 sm:mt-12">
-          <a href="https://github.com/buzzfit/pai-key/blob/main/docs/WHITEPAPER.md" className="text-blue-600 hover:underline text-base sm:text-lg">
-            View full source on GitHub
-          </a>
-        </div>
-      </div>
-    </section>
+      <h2>4 On-Chain Primitives</h2>
+      <h3>4.1 Least-Authority Keys</h3>
+      <p>
+        <code>SignerListSet</code> lets an account add 1–32 delegates, assign weights, and define a quorum—enforcing
+        minimal authority for vendors.
+      </p>
+      <h3>4.2 Escrow Economics</h3>
+      <p>
+        <code>EscrowCreate</code> locks XRP under a <code>FinishAfter</code> or cryptographic <code>Condition</code>.
+        Releasing costs ~330 drops + 10 drops per 16 B (≈ $0.002).
+      </p>
+      <h3>4.3 Hooks Amendment</h3>
+      <p>
+        Hooks remains in Draft; we monitor the&nbsp;
+        <a href="https://xrpl.org/known-amendments.html" target="_blank" rel="noopener" className="text-matrix-green hover:underline">
+          XRPL Known Amendments
+        </a>&nbsp;weekly. Until live, an off-chain watcher co-signs a 2-of-3 multisig escrow to mirror on-chain logic.
+      </p>
+
+      <h2>5 Credential & Token Model</h2>
+      <ul>
+        <li>
+          <strong>Verifiable Credentials v2.0</strong>: Extensible data model for issuers, holders, and verifiers—
+          supporting non-human subjects.
+        </li>
+        <li>
+          <strong>DID:key</strong>: Anchor vendor identity within VCs.
+        </li>
+        <li>
+          <strong>Macaroons</strong>: Caveat-based tokens (scope, TTL) for legacy APIs via&nbsp;
+          <code>macaroons.js</code>.
+        </li>
+      </ul>
+
+      <h2>6 Matchmaking & Negotiation Engine</h2>
+      <p>
+        Cosine-similarity filters vendors by capability vectors in real time. Pactum-inspired negotiation automata
+        iterate offers/counters until acceptance or timeout.
+      </p>
+
+      <h2>7 User Experience & Wallet Integration</h2>
+      <p>
+        A Next.js PWA (via <code>next-pwa</code>) delivers offline caching & installability. Deep-link payloads
+        launch Xumm xApp for seamless <code>EscrowCreate</code> signing—no manual steps.
+      </p>
+
+      <h2>8 Dispute Resolution & Reputation</h2>
+      <ul>
+        <li><strong>Objective:</strong> UMA’s Optimistic Oracle adjudicates proofs on-chain.</li>
+        <li><strong>Subjective:</strong> Kleros jury-based arbitration handles nuanced disputes.</li>
+      </ul>
+      <p>
+        Post-verdict, a VC badge appends to the vendor’s DID, boosting future rankings.
+      </p>
+
+      <h2>9 Technical Stack Overview</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Layer</th>
+            <th>Technology</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Frontend</td>
+            <td>Next.js 13, Tailwind, PWA (next-pwa), MDX (@next/mdx)</td>
+          </tr>
+          <tr>
+            <td>Backend</td>
+            <td>FastAPI (negotiation), Next.js API (XRPL & VC micro-services)</td>
+          </tr>
+          <tr>
+            <td>XRPL-Svc</td>
+            <td>xrpl.js helpers (Escrow, SignerList), Hook templates</td>
+          </tr>
+          <tr>
+            <td>Watcher</td>
+            <td>Off-chain proof enforcer until Hooks live</td>
+          </tr>
+          <tr>
+            <td>Agent-SDK</td>
+            <td>Python/TS libs: sign memos, fetch/verify macaroons</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>10 Roadmap</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Quarter</th>
+            <th>Milestone</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Q2 2025</td>
+            <td>Fix MDX routes, seed demo vendors, publish developer quick-start</td>
+          </tr>
+          <tr>
+            <td>Q3 2025</td>
+            <td>Test-net alpha: Xumm deep-link escrow + delegated PAI Keys</td>
+          </tr>
+          <tr>
+            <td>Q4 2025</td>
+            <td>Hooks go live → automatic EscrowFinish; UMA/Kleros integration</td>
+          </tr>
+          <tr>
+            <td>2026+</td>
+            <td>IoT/robot adapters, geo-fenced insurance, multi-vendor orchestration, “free” agents</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>11 Security & Risk Considerations</h2>
+      <ul>
+        <li>Key revocation via empty <code>SignerListSet</code>.</li>
+        <li>Phishing protection through Xumm sign-request metadata.</li>
+        <li>Escrow griefing mitigated by small fees; milestone escrows for large jobs.</li>
+      </ul>
+
+      <h2>12 Conclusion</h2>
+      <p>
+        PAI Key Lobby marries XRPL’s low-fee primitives with W3C credentials and negotiation AI to create a future-proof
+        autonomous vendor marketplace. With least-authority keys, on-chain escrow, and pluggable dispute modules—plus
+        macaroon support for legacy APIs—we eliminate intermediaries and empower users. Hooks on the horizon and deep-link
+        UX live today make the path to production clear.
+      </p>
+    </article>
   );
 }
