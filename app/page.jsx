@@ -2,13 +2,18 @@
 'use client';
 
 import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Hero from '../components/Hero';
 import Features from '../components/Features';
 import JobTemplateForm from '../components/JobTemplateForm';
 
 export default function Home() {
+  // read ?form=true query param
+  const params = useSearchParams();
+  const initialShow = params.get('form') === 'true';
+
   // state to control whether the Job Template modal is visible
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState(initialShow);
 
   // open the form
   const handleOpenForm = () => setShowForm(true);
