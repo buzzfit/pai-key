@@ -7,7 +7,9 @@ export default function NavBar() {
       <div className="max-w-6xl mx-auto px-4 py-3 flex flex-col sm:flex-row items-center sm:justify-between gap-4">
         {/* Logo */}
         <Link href="/" passHref>
-          <a className="text-2xl font-extrabold text-matrix-green hover:text-matrix-green">PAI Key</a>
+          <a className="text-2xl font-extrabold text-matrix-green hover:text-matrix-green">
+            PAI Key
+          </a>
         </Link>
 
         {/* Navigation Links */}
@@ -28,11 +30,15 @@ export default function NavBar() {
             <a className="cursor-pointer transition hover:text-matrix-green">Amendments</a>
           </Link>
           <Link href="https://github.com/buzzfit/pai-key" passHref>
-            <a className="cursor-pointer transition hover:text-matrix-green" target="_blank" rel="noopener noreferrer">
+            <a
+              className="cursor-pointer transition hover:text-matrix-green"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               GitHub
             </a>
           </Link>
-          <Link href="https://app.pai-key.org" passHref>
+          <Link href="/?form=true" passHref>
             <a className="cursor-pointer px-4 py-2 bg-matrix-green text-black rounded-md hover:bg-opacity-90 transition">
               Get Started
             </a>
