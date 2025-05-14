@@ -5,3 +5,10 @@
 body {
   @apply bg-matrix-dark text-matrix-green;
 }
+
+/* Underline all links by default for better visibility */
+@layer base {
+  a {
+    @apply underline;
+  }
+}
