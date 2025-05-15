@@ -1,21 +1,23 @@
 // components/Hero.jsx
-'use client';
+ 'use client';
 
-import Image from 'next/image';
+ import Image from 'next/image';
 
-export default function Hero({ onGetStarted }) {
-  return (
-    <section className="relative flex flex-col items-center justify-center h-screen bg-black text-white">
-      {/* Logo: mobile moved up by half (–7.5%), desktop half shift (17.5%) */}
-      <div className="absolute top-[-7.5%] left-[16%] sm:top-[17.5%] sm:left-[12.5%]">
-        <Image
-          src="/logo.png"
-          alt="PAI Key Logo"
-          width={240}
-          height={240}
-          className="rounded-full"
-        />
-      </div>
+ export default function Hero({ onGetStarted }) {
+   return (
+     <section className="relative flex flex-col items-center justify-center h-screen bg-black text-white">
+       {/* Logo: mobile moved up –7.5% → –5.625%, desktop from 17.5% → 19.375% */}
+-      <div className="absolute top-[-7.5%] left-[16%] sm:top-[17.5%] sm:left-[12.5%]">
++      <div className="absolute top-[-5.625%] left-[16%] sm:top-[19.375%] sm:left-[12.5%]">
+         <Image
+           src="/logo.png"
+           alt="PAI Key Logo"
+           width={240}
+           height={240}
+           className="rounded-full"
+         />
+       </div>
+
 
       <h1 className="text-4xl font-extrabold mb-4 text-matrix-green text-center">
         Hire AI Agents
