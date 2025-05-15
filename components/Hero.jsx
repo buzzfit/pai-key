@@ -10,10 +10,8 @@ export default function Hero({ onGetStarted }) {
     >
       {/* Logo positioned 25% down, 12.5% from left */}
       <div
-        className="absolute"
-        style={{
-          top: '25%',
-          left: '12.5%',
+       <div className="absolute top-[15%] left-[15%] sm:top-[25%] sm:left-[12.5%]">
+
         }}
       >
         <Image
