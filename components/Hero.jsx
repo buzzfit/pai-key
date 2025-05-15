@@ -9,16 +9,26 @@ export default function Hero({ onGetStarted }) {
       className="relative flex flex-col items-center justify-center h-screen
                  bg-black text-white"
     >
-      {/* Logo in top-left */}
-      <div className="absolute top-6 left-6">
-        <Image
-          src="/logo.png"
-          alt="PAI Key Logo"
-          width={160}
-          height={160}
-          className="rounded-full"
-        />
-      </div>
+-     {/* Logo in top-left */}
+-     <div className="absolute top-6 left-6">
+-       <Image
+-         src="/logo.png"
+-         alt="PAI Key Logo"
+-         width={160}
+-         height={160}
+-         className="rounded-full"
+-       />
+-     </div>
++     {/* Logo repositioned and enlarged */}
++     <div className="absolute" style={{ top: '25%', left: '10%' }}>
++       <Image
++         src="/logo.png"
++         alt="PAI Key Logo"
++         width={240}
++         height={240}
++         className="rounded-full"
++       />
++     </div>
 
       <h1 className="text-4xl font-extrabold mb-4 text-matrix-green">
         Hire AI Agents<br />with Cryptographic Keys
@@ -38,7 +48,7 @@ export default function Hero({ onGetStarted }) {
           Get Started
         </button>
         <button
-          onClick={() => window.location.href = '/#features'}
+          onClick={() => (window.location.href = '/#features')}
           className="px-6 py-3 bg-matrix-green text-black rounded-md
                      hover:opacity-90 transition"
         >
