@@ -6,9 +6,14 @@ import Image from 'next/image';
 export default function Hero({ onGetStarted }) {
   return (
     <section className="relative flex flex-col items-center justify-center h-screen bg-black text-white">
-      {/* Logo: mobile ~10% down/16% across, desktop 25%/12.5% */}
--     <div className="absolute top-[15%] left-[15%] sm:top-[25%] sm:left-[12.5%]">
-+     <div className="absolute top-[10%] left-[16%] sm:top-[25%] sm:left-[12.5%]">
+      {/* Logo: mobile 10%/16%, desktop 25%/12.5% */}
+      <div
+        className="absolute"
+        style={{
+          top: window.innerWidth < 640 ? '10%' : '25%',
+          left: window.innerWidth < 640 ? '16%' : '12.5%',
+        }}
+      >
         <Image
           src="/logo.png"
           alt="PAI Key Logo"
@@ -23,10 +28,12 @@ export default function Hero({ onGetStarted }) {
         <br />
         with Cryptographic Keys
       </h1>
+
       <p className="max-w-xl text-center mb-8 text-gray-200">
         Grant agents exactly the power they need, lock payment in escrow, and verify
         deliverables—all on the XRP Ledger.
       </p>
+
       <div className="flex space-x-4">
         <button
           onClick={onGetStarted}
