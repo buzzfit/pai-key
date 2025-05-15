@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export default function NavBar() {
   return (
-    <nav role="navigation" aria-label="Main navigation" className="w-full bg-black shadow">
+    <nav role="navigation" aria-label="Main navigation" className="w-full bg-white shadow">
       <div className="max-w-6xl mx-auto px-4 py-3 flex flex-col sm:flex-row items-center sm:justify-between gap-4">
         {/* Logo */}
         <Link href="/" passHref>
@@ -36,11 +36,6 @@ export default function NavBar() {
               rel="noopener noreferrer"
             >
               GitHub
-            </a>
-          </Link>
-          <Link href="/?form=true" passHref>
-            <a className="cursor-pointer px-4 py-2 bg-matrix-green text-black rounded-md hover:bg-opacity-90 transition">
-              Get Started
             </a>
           </Link>
         </div>
