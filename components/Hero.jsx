@@ -6,8 +6,8 @@ import Image from 'next/image';
 export default function Hero({ onGetStarted }) {
   return (
     <section className="relative flex flex-col items-center justify-center h-screen bg-black text-white">
-      {/* Logo: mobile 5% down/16% across, desktop 20%/12.5% */}
-      <div className="absolute top-[5%] left-[16%] sm:top-[20%] sm:left-[12.5%]">
+      {/* Logo: mobile moved up by 15%, desktop moved up by 10% */}
+      <div className="absolute top-[-15%] left-[16%] sm:top-[10%] sm:left-[12.5%]">
         <Image
           src="/logo.png"
           alt="PAI Key Logo"
