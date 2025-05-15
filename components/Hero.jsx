@@ -5,15 +5,18 @@ import Image from 'next/image';
 
 export default function Hero({ onGetStarted }) {
   return (
-    <section
-      className="relative flex flex-col items-center justify-center h-screen bg-black text-white"
-    >
-      {/* Logo positioned 25% down, 12.5% from left */}
-      <div
-       <div className="absolute top-[15%] left-[15%] sm:top-[25%] sm:left-[12.5%]">
-
-        }}
-      >
+    <section className="relative flex flex-col items-center justify-center h-screen bg-black text-white">
+      {/* Logo: mobile at 15% down/15% across, desktop at 25% down/12.5% across */}
+-     <div
+-       className="absolute"
+-       style={{
+-         top: '25%',
+-         left: '12.5%',
+-       }}
+-     >
++     <div
++       className="absolute top-[15%] left-[15%] sm:top-[25%] sm:left-[12.5%]"
++     >
         <Image
           src="/logo.png"
           alt="PAI Key Logo"
