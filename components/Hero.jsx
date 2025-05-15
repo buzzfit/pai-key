@@ -8,21 +8,14 @@ export default function Hero({ onGetStarted }) {
     <section
       className="relative flex flex-col items-center justify-center h-screen bg-black text-white"
     >
-      {/* Logo positioned 25% down, now ~12.5% from left */}
--     <div
--       className="absolute"
--       style={{
--         top: '25%',
--         left: '10%',
--       }}
--     >
-+     <div
-+       className="absolute"
-+       style={{
-+         top: '25%',
-+         left: '12.5%',
-+       }}
-+     >
+      {/* Logo positioned 25% down, 12.5% from left */}
+      <div
+        className="absolute"
+        style={{
+          top: '25%',
+          left: '12.5%',
+        }}
+      >
         <Image
           src="/logo.png"
           alt="PAI Key Logo"
