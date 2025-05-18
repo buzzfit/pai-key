@@ -17,9 +17,12 @@ export default function NavBar() {
           <Link href="/" passHref>
             <a className="cursor-pointer transition hover:text-matrix-green">Home</a>
           </Link>
-          <Link href="/#features" passHref>
-            <a className="cursor-pointer transition hover:text-matrix-green">Features</a>
-          </Link>
+          <a
+            href="mailto:admin@pai-key.org"
+            className="cursor-pointer transition hover:text-matrix-green"
+          >
+            Contact
+          </a>
           <Link href="/whitepaper" passHref>
             <a className="cursor-pointer transition hover:text-matrix-green">Whitepaper</a>
           </Link>
@@ -41,5 +44,5 @@ export default function NavBar() {
         </div>
       </div>
     </nav>
-  );
+);
 }
