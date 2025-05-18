@@ -1,3 +1,4 @@
+// components/Footer.jsx
 export default function Footer() {
   return (
     <footer className="w-full bg-gray-100 py-6">
