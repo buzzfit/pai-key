@@ -29,12 +29,9 @@ export default function NavBar() {
           <Link href="/overview" passHref>
             <a className="cursor-pointer transition hover:text-matrix-green">Overview</a>
           </Link>
--         <Link href="/hooks-amendments" passHref>
--           <a className="cursor-pointer transition hover:text-matrix-green">Amendments</a>
--         </Link>
-+         <Link href="/contribute" passHref>
-+           <a className="cursor-pointer transition hover:text-matrix-green">Contribute</a>
-+         </Link>
+          <Link href="/contribute" passHref>
+            <a className="cursor-pointer transition hover:text-matrix-green">Contribute</a>
+          </Link>
           <Link href="https://github.com/buzzfit/pai-key" passHref>
             <a
               className="cursor-pointer transition hover:text-matrix-green"
