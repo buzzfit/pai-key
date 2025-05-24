@@ -25,8 +25,7 @@ export default function OverviewPage() {
           signing, escrow-backed payments, and per-action on-ledger audit trails.
           The analysis indicates that the project leverages the inherent
           advantages of the XRP Ledger and aligns with the growing need for secure
-          AI agent management. However, its early stage of development and reliance
-          on evolving XRP Ledger features necessitate a cautious approach to investment.
+          AI agent management.
         </p>
       </section>
 
