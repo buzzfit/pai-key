@@ -26,8 +26,8 @@ export default function NavBar() {
           <Link href="/whitepaper" passHref>
             <a className="cursor-pointer transition hover:text-matrix-green">Whitepaper</a>
           </Link>
-          <Link href="/features/least-authority-keys" passHref>
-            <a className="cursor-pointer transition hover:text-matrix-green">Details</a>
+          <Link href="/overview" passHref>
+            <a className="cursor-pointer transition hover:text-matrix-green">Overview</a>
           </Link>
           <Link href="/hooks-amendments" passHref>
             <a className="cursor-pointer transition hover:text-matrix-green">Amendments</a>
@@ -44,5 +44,5 @@ export default function NavBar() {
         </div>
       </div>
     </nav>
-);
+  );
 }
