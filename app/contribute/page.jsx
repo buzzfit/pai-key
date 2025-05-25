@@ -18,11 +18,6 @@ export default function ContributePage() {
         <h2 className="text-3xl font-semibold">What’s Next &amp; What We Need</h2>
         <ul className="list-decimal list-inside text-lg leading-relaxed space-y-6">
           <li>
-            <span className="font-bold">Static Route Fixes:</span><br/>
-            Ensure `/features`, `/overview`, and `/whitepaper` paths resolve—no more 404s.<br/>
-            <span className="italic">Needed:</span> MDX/Next.js routing expertise.
-          </li>
-          <li>
             <span className="font-bold">CI &amp; Build Automation:</span><br/>
             Add GitHub Actions for linting, tests, and preview deployments.<br/>
             <span className="italic">Needed:</span> YAML scripting &amp; GitHub workflows.
