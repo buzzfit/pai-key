@@ -29,7 +29,7 @@ export default function Hero({ onGetStarted }) {
       </div>
 
       {/* 3) CONTENT WRAPPER: shifts left on sm+ */}
-      <div className="relative z-10 px-4 sm:px-0 transform sm:-translate-x-[15%]">
+      <div className="relative z-10 px-4 sm:px-0 transform sm:-translate-x-[12%]">
         <h1 className="text-4xl font-extrabold mb-4 text-matrix-green text-center">
           Hire AI Agents
           <br />
