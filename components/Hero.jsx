@@ -7,7 +7,7 @@ export default function Hero({ onGetStarted }) {
   return (
     <section className="relative flex flex-col items-center justify-center h-screen bg-black text-white overflow-hidden">
       {/* 1) Left logo (unchanged) */}
-      <div className="absolute top-[-1.5%] left-[19%] sm:top-[23.5%] sm:left-[12.5%]">
+      <div className="absolute top-[-1.5%] left-[19%] sm:top-[23.5%] sm:left-[10.5%]">
         <Image
           src="/logo.png"
           alt="PAI Key Logo"
