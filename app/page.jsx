@@ -1,64 +1,57 @@
 // app/page.jsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Hero from '../components/Hero';
 import Features from '../components/Features';
-import JobTemplateForm from '../components/JobTemplateForm';
 import EmailSignupForm from '../components/EmailSignupForm';
+import JobTemplateForm from '../components/JobTemplateForm';
 
 export default function Home() {
-  const [signedUp, setSignedUp] = useState(false);
+  // Step 1: show the email signup modal
   const [showSignup, setShowSignup] = useState(false);
+  // Step 2: once signed up, show the job template modal
   const [showForm, setShowForm] = useState(false);
 
-  // On mount, check if user already signed up
-  useEffect(() => {
-    if (localStorage.getItem('paiKeySignedUp') === 'true') {
-      setSignedUp(true);
-    }
-  }, []);
-
-  // After successful signup
-  const handleSignUp = (email) => {
+  // Open signup when the "Get Started" button is clicked
+  const handleOpenSignup = () => setShowSignup(true);
+  // Close signup without proceeding
+  const handleCloseSignup = () => setShowSignup(false);
+  // After successful signup, close signup & open the job form
+  const handleSignup = (email) => {
     console.log('Signed up:', email);
-    setSignedUp(true);
     setShowSignup(false);
     setShowForm(true);
   };
 
-  // Entry point for Get Started button
-  const handleOpenForm = () => {
-    if (signedUp) {
-      setShowForm(true);
-    } else {
-      setShowSignup(true);
-    }
+  // Close or cancel the job template form
+  const handleCloseForm = () => setShowForm(false);
+  // Handle form submission (stubbed for now)
+  const handleFormSubmit = (data) => {
+    console.log('Job Template submitted:', data);
+    setShowForm(false);
   };
 
   return (
     <>
-      {/* Email Signup Modal */}
+      {/* 1) Email signup modal */}
       {showSignup && (
         <EmailSignupForm
-          onSignUp={handleSignUp}
-          onClose={() => setShowSignup(false)}
+          onSignUp={handleSignup}
+          onClose={handleCloseSignup}
         />
       )}
 
-      {/* Job Template Modal */}
+      {/* 2) Job template modal */}
       {showForm && (
         <JobTemplateForm
-          onSubmit={(data) => {
-            console.log('Job Template Data:', data);
-            setShowForm(false);
-          }}
-          onClose={() => setShowForm(false)}
+          onSubmit={handleFormSubmit}
+          onClose={handleCloseForm}
         />
       )}
 
-      {/* Main Page */}
-      <Hero onGetStarted={handleOpenForm} />
+      {/* 3) Main page */}
+      <Hero onGetStarted={handleOpenSignup} />
       <Features />
     </>
   );
