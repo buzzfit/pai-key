@@ -1,8 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { init } from '@emailjs/browser';
 
 export default function EmailSignupForm({ onSignUp, onClose }) {
+  // Initialize EmailJS once on mount
+  useEffect(() => {
+    init(process.env.NEXT_PUBLIC_EMAILJS_USER_ID);
+  }, []);
+
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
 
@@ -55,4 +61,3 @@ export default function EmailSignupForm({ onSignUp, onClose }) {
     </div>
   );
 }
-
