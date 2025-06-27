@@ -1,44 +1,47 @@
-// components/EmailSignupForm.jsx
 'use client';
 
 import { useState, useEffect } from 'react';
 import { init, send } from '@emailjs/browser';
 
 export default function EmailSignupForm({ onSignUp, onClose }) {
-  // 1) Initialize EmailJS on mount
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 1) Initialize EmailJS on mount with your Public Key (User ID)
+  // ─────────────────────────────────────────────────────────────────────────────
   useEffect(() => {
-    init(process.env.NEXT_PUBLIC_EMAILJS_USER_ID);
+    init('qw2tG7e_AKMJ2Ml_y'); // ← replace with your EmailJS Public Key
   }, []);
 
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [status, setStatus] = useState('');
 
-  // 2) Handle the form submission
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 2) Handle the form submission and send both emails via your SMTP service
+  // ─────────────────────────────────────────────────────────────────────────────
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     // Basic email regex
     const re = /^\S+@\S+\.\S+$/;
     if (!re.test(email)) {
       setError('Please enter a valid email.');
       return;
     }
-
     setError('');
     setStatus('Sending…');
 
     try {
       // 2a) Notify Admin
       await send(
-        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
-        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ADMIN_ID,
+        'service_pai_smtp',              // ← your new SMTP Service ID
+        'template_admin_notify',         // ← your admin‐notify template ID
         { user_email: email }
       );
 
       // 2b) Send Confirmation to User
       await send(
-        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
-        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_USER_ID,
+        'service_pai_smtp',              // ← same SMTP Service ID
+        'template_user_confirm',         // ← your user‐confirm template ID
         { user_email: email }
       );
 
