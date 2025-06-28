@@ -2,14 +2,11 @@
 'use client';
 import { useState } from 'react';
 
-/* ──────────────────────────────────────────────────────────────────────────
-  NOTE: This version adds
-    • an always‑visible "X" close button (top‑right)
-    • a distinct Cancel button at the bottom actions
-    • responsive sizing: modal card max‑height 90vh with auto‑scroll so the
-      Connect‑Wallet area and bottom buttons never overflow off‑screen.
-   Simply copy ↘ paste over the existing file.
-────────────────────────────────────────────────────────────────────────── */
+/* ──────────────────────────────────────────────────────────
+  • top-right close "×" button
+  • explicit Cancel button at bottom
+  • max-height 90vh + overflow-y-auto so content never clips
+────────────────────────────────────────────────────────── */
 
 const AGENT_TYPES = [
   { value: '', label: 'Select an agent type…' },
@@ -20,22 +17,21 @@ const AGENT_TYPES = [
   { value: 'code_gen', label: 'Code Gen Agent' },
   { value: 'data_analysis', label: 'Data Analysis Agent' },
   { value: 'content_creation', label: 'Content Creation Agent' },
-  { value: 'decision_support', label: 'Decision‑Support Agent' },
+  { value: 'decision_support', label: 'Decision-Support Agent' },
   { value: 'customer_support', label: 'Customer Support Agent' },
 ];
 
 const PROOF_OPTIONS = [
   { value: 'any',        label: 'Any (vendor decides)' },
-  { value: 'file_hash',  label: 'File Hash (SHA‑256)' },
+  { value: 'file_hash',  label: 'File Hash (SHA-256)' },
   { value: 'image_hash', label: 'Image / Video Hash' },
   { value: 'git_commit', label: 'Git Commit Hash' },
   { value: 'sensor_log', label: 'Sensor Log Hash' },
-  { value: 'onchain_tx', label: 'On‑chain Tx Hash' },
+  { value: 'onchain_tx', label: 'On-chain Tx Hash' },
   { value: 'url_sig',    label: 'URL + Signature' },
 ];
 
 export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
-  // ─── STATE ────────────────────────────────────────────────────────────────
   const [agentType,    setAgentType]    = useState('');
   const [name,         setName]         = useState('');
   const [tagline,      setTagline]      = useState('');
@@ -46,7 +42,6 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
   const [proof,        setProof]        = useState(['any']);
   const [xrpAddr,      setXrpAddr]      = useState('');
 
-  // ─── HELPERS ──────────────────────────────────────────────────────────────
   const toggleProof = v => {
     if (v === 'any') { setProof(['any']); return; }
     setProof(p =>
@@ -61,10 +56,7 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
       name,
       tagline,
       description,
-      capabilities: capabilities
-        .split(',')
-        .map(s => s.trim())
-        .filter(Boolean),
+      capabilities: capabilities.split(',').map(s => s.trim()).filter(Boolean),
       hourlyRate,
       minHours,
       proof,
@@ -72,27 +64,25 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
     });
   };
 
-  // ─── RENDER ───────────────────────────────────────────────────────────────
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      {/* modal card */}
       <form
         onSubmit={handleSubmit}
-        className="relative w-full max-w-xl space-y-4 overflow-y-auto rounded-lg bg-white p-6 dark:bg-gray-800 max-h-[90vh]"
+        className="relative max-h-[90vh] w-full max-w-xl space-y-4 overflow-y-auto rounded-lg bg-white p-6 dark:bg-gray-800"
       >
-        {/* Top‑right close (X) */}
+        {/* close X */}
         <button
           type="button"
           onClick={onClose}
           aria-label="close"
-          className="absolute right-3 top-3 text-lg leading-none text-gray-500 hover:text-gray-700"
+          className="absolute right-3 top-3 text-lg text-gray-500 hover:text-gray-700"
         >
           ×
         </button>
 
         <h2 className="text-xl font-semibold">Dock Your Agent</h2>
 
-        {/* Agent type */}
+        {/* agent type */}
         <label className="block">
           <span>Agent Type</span>
           <select
@@ -109,7 +99,7 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
           </select>
         </label>
 
-        {/* Name & tagline */}
+        {/* name + tagline */}
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block">
             <span>Agent Name</span>
@@ -132,7 +122,7 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
           </label>
         </div>
 
-        {/* Description */}
+        {/* description */}
         <label className="block">
           <span>Detailed Description</span>
           <textarea
@@ -144,9 +134,9 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
           />
         </label>
 
-        {/* Capabilities */}
+        {/* capabilities */}
         <label className="block">
-          <span>Capabilities / keywords (comma‑separated)</span>
+          <span>Capabilities / keywords (comma-separated)</span>
           <input
             value={capabilities}
             onChange={e => setCapabilities(e.target.value)}
@@ -154,7 +144,7 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
           />
         </label>
 
-        {/* Pricing */}
+        {/* pricing */}
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block">
             <span>Hourly Rate (XRP)</span>
@@ -182,7 +172,7 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
           </label>
         </div>
 
-        {/* Proof types */}
+        {/* proof types */}
         <fieldset>
           <span>Accepted Proof Types</span>
           <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
@@ -199,7 +189,7 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
           </div>
         </fieldset>
 
-        {/* Wallet connect placeholder */}
+        {/* wallet connect placeholder */}
         <button
           type="button"
           onClick={async () => {
@@ -211,7 +201,7 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
           {xrpAddr ? 'Wallet Connected' : 'Connect Xumm Wallet'}
         </button>
 
-        {/* Action buttons */}
+        {/* bottom actions */}
         <div className="flex justify-end gap-4 pt-2">
           <button
             type="button"
@@ -226,4 +216,9 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
             className="rounded bg-matrix-green px-4 py-2"
           >
             Submit
-          </
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
