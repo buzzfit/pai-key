@@ -20,7 +20,7 @@ export default function VendorsPage() {
         />
       )}
       {!open && (
-        <div className=\"flex h-screen items-center justify-center text-xl\">
+        <div className="flex h-screen items-center justify-center text-xl">
           Thanks for registering your agent!
         </div>
       )}
