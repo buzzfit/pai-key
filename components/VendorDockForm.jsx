@@ -2,11 +2,14 @@
 'use client';
 import { useState } from 'react';
 
-/* ──────────────────────────────────────────────────────────
-  • top-right close "×" button
-  • explicit Cancel button at bottom
-  • max-height 90vh + overflow-y-auto so content never clips
-────────────────────────────────────────────────────────── */
+/* 
+  Changes in this patch
+  ────────────────────────────────────────────
+  • Green button renamed **Dock Agent** (clear action)
+  • Button enabled only when *all* required inputs + wallet are present
+  • Adds subtle disabled style so users know why it’s inactive
+  • Keeps Cancel + X close behaviour
+──────────────────────────────────────────── */
 
 const AGENT_TYPES = [
   { value: '', label: 'Select an agent type…' },
@@ -17,17 +20,17 @@ const AGENT_TYPES = [
   { value: 'code_gen', label: 'Code Gen Agent' },
   { value: 'data_analysis', label: 'Data Analysis Agent' },
   { value: 'content_creation', label: 'Content Creation Agent' },
-  { value: 'decision_support', label: 'Decision-Support Agent' },
+  { value: 'decision_support', label: 'Decision‑Support Agent' },
   { value: 'customer_support', label: 'Customer Support Agent' },
 ];
 
 const PROOF_OPTIONS = [
   { value: 'any',        label: 'Any (vendor decides)' },
-  { value: 'file_hash',  label: 'File Hash (SHA-256)' },
+  { value: 'file_hash',  label: 'File Hash (SHA‑256)' },
   { value: 'image_hash', label: 'Image / Video Hash' },
   { value: 'git_commit', label: 'Git Commit Hash' },
   { value: 'sensor_log', label: 'Sensor Log Hash' },
-  { value: 'onchain_tx', label: 'On-chain Tx Hash' },
+  { value: 'onchain_tx', label: 'On‑chain Tx Hash' },
   { value: 'url_sig',    label: 'URL + Signature' },
 ];
 
@@ -49,8 +52,14 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
     );
   };
 
+  const allFieldsFilled = () =>
+    agentType && name && tagline && description && capabilities && hourlyRate && minHours;
+
+  const canSubmit = allFieldsFilled() && xrpAddr;
+
   const handleSubmit = e => {
     e.preventDefault();
+    if (!canSubmit) return;
     onSubmit({
       agentType,
       name,
@@ -136,7 +145,7 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
 
         {/* capabilities */}
         <label className="block">
-          <span>Capabilities / keywords (comma-separated)</span>
+          <span>Capabilities / keywords (comma‑separated)</span>
           <input
             value={capabilities}
             onChange={e => setCapabilities(e.target.value)}
@@ -212,13 +221,9 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
           </button>
           <button
             type="submit"
-            disabled={!xrpAddr}
-            className="rounded bg-matrix-green px-4 py-2"
+            disabled={!canSubmit}
+            className={`rounded px-4 py-2 ${canSubmit ? 'bg-matrix-green' : 'bg-matrix-green/40 cursor-not-allowed'}`}
           >
-            Submit
+            Dock Agent
           </button>
-        </div>
-      </form>
-    </div>
-  );
-}
+        </
