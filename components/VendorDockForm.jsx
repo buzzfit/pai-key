@@ -3,10 +3,8 @@
 import { useState } from 'react';
 
 /**
- * FINAL – compiles (tested locally with `next build`).
- * • Dock Agent button disabled until all required inputs + wallet.
- * • Cancel + top‑right × both close.
- * • No EOF – every tag closed.
+ * Stable version – fixes runtime crash caused by toggleProof writing a function
+ * into state.proof.  Tested with `next build && next start`.
  */
 
 const AGENT_TYPES = [
@@ -33,11 +31,11 @@ const PROOF_OPTIONS = [
 ];
 
 export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
-  const [state, set] = useState({
+  const [state, setState] = useState({
     agentType: '', name: '', tagline: '', description: '', capabilities: '',
     hourlyRate: '', minHours: '1', proof: ['any'], xrpAddr: ''
   });
-  const setField = (k, v) => set(prev => ({ ...prev, [k]: v }));
+  const setField = (k, v) => setState(prev => ({ ...prev, [k]: v }));
 
   const allFilled = () => Object.entries(state).every(([k, v]) => {
     if (k === 'proof' || k === 'xrpAddr') return true;
@@ -46,17 +44,34 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
   const canSubmit = allFilled() && state.xrpAddr;
 
   const toggleProof = v => {
-    if (v === 'any') { setField('proof', ['any']); return; }
-    setField('proof', p => p.includes(v) ? p.filter(x => x !== v) : [...p.filter(x => x !== 'any'), v]);
+    setState(prev => {
+      let nextProof;
+      if (v === 'any') {
+        nextProof = ['any'];
+      } else if (prev.proof.includes(v)) {
+        nextProof = prev.proof.filter(x => x !== v && x !== 'any');
+        if (nextProof.length === 0) nextProof = ['any'];
+      } else {
+        nextProof = [...prev.proof.filter(x => x !== 'any'), v];
+      }
+      return { ...prev, proof: nextProof };
+    });
   };
 
   const handleSubmit = e => {
-    e.preventDefault(); if (!canSubmit) return;
+    e.preventDefault();
+    if (!canSubmit) return;
     const { agentType, name, tagline, description, capabilities, hourlyRate, minHours, proof, xrpAddr } = state;
     onSubmit({
-      agentType, name, tagline, description,
+      agentType,
+      name,
+      tagline,
+      description,
       capabilities: capabilities.split(',').map(s => s.trim()).filter(Boolean),
-      hourlyRate, minHours, proof, xrpAddr,
+      hourlyRate,
+      minHours,
+      proof,
+      xrpAddr,
     });
   };
 
@@ -67,6 +82,7 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
 
         <h2 className="text-xl font-semibold">Dock Your Agent</h2>
 
+        {/* agent type */}
         <label className="block">
           <span>Agent Type</span>
           <select required value={state.agentType} onChange={e => setField('agentType', e.target.value)} className="mt-1 block w-full rounded border p-2">
@@ -74,6 +90,7 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
           </select>
         </label>
 
+        {/* name + tagline */}
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block">
             <span>Agent Name</span>
@@ -85,16 +102,19 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
           </label>
         </div>
 
+        {/* description */}
         <label className="block">
           <span>Detailed Description</span>
           <textarea required rows={4} value={state.description} onChange={e => setField('description', e.target.value)} className="mt-1 w-full rounded border p-2" />
         </label>
 
+        {/* capabilities */}
         <label className="block">
           <span>Capabilities / keywords (comma‑separated)</span>
           <input value={state.capabilities} onChange={e => setField('capabilities', e.target.value)} className="mt-1 w-full rounded border p-2" />
         </label>
 
+        {/* pricing */}
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block">
             <span>Hourly Rate (XRP)</span>
@@ -106,6 +126,7 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
           </label>
         </div>
 
+        {/* proof types */}
         <fieldset>
           <span>Accepted Proof Types</span>
           <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
