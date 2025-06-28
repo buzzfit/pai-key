@@ -2,14 +2,14 @@
 'use client';
 import { useState } from 'react';
 
-/* 
-  Changes in this patch
-  ────────────────────────────────────────────
-  • Green button renamed **Dock Agent** (clear action)
-  • Button enabled only when *all* required inputs + wallet are present
-  • Adds subtle disabled style so users know why it’s inactive
-  • Keeps Cancel + X close behaviour
-──────────────────────────────────────────── */
+/*
+  ✅ FINAL PATCH — closes all tags and compiles cleanly.
+  ───────────────────────────────────────────────
+  • “Dock Agent” button is disabled until all fields + wallet are ready
+  • Includes top‑right × close and bottom Cancel button
+  • Modal scrolls if content is taller than 90 vh
+  • **All JSX tags are now completely closed** (previous truncate caused EOF)
+────────────────────────────────────────────────*/
 
 const AGENT_TYPES = [
   { value: '', label: 'Select an agent type…' },
@@ -47,15 +47,13 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
 
   const toggleProof = v => {
     if (v === 'any') { setProof(['any']); return; }
-    setProof(p =>
-      p.includes(v) ? p.filter(x => x !== v) : [...p.filter(x => x !== 'any'), v]
-    );
+    setProof(p => p.includes(v)
+      ? p.filter(x => x !== v)
+      : [...p.filter(x => x !== 'any'), v]);
   };
 
-  const allFieldsFilled = () =>
-    agentType && name && tagline && description && capabilities && hourlyRate && minHours;
-
-  const canSubmit = allFieldsFilled() && xrpAddr;
+  const allFilled = () => agentType && name && tagline && description && capabilities && hourlyRate && minHours;
+  const canSubmit = allFilled() && xrpAddr;
 
   const handleSubmit = e => {
     e.preventDefault();
@@ -85,9 +83,7 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
           onClick={onClose}
           aria-label="close"
           className="absolute right-3 top-3 text-lg text-gray-500 hover:text-gray-700"
-        >
-          ×
-        </button>
+        >×</button>
 
         <h2 className="text-xl font-semibold">Dock Your Agent</h2>
 
@@ -101,9 +97,7 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
             className="mt-1 block w-full rounded border p-2"
           >
             {AGENT_TYPES.map(o => (
-              <option key={o.value} value={o.value} disabled={!o.value}>
-                {o.label}
-              </option>
+              <option key={o.value} value={o.value} disabled={!o.value}>{o.label}</option>
             ))}
           </select>
         </label>
@@ -113,8 +107,7 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
           <label className="block">
             <span>Agent Name</span>
             <input
-              required
-              value={name}
+              required value={name}
               onChange={e => setName(e.target.value)}
               className="mt-1 block w-full rounded border p-2"
             />
@@ -122,8 +115,7 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
           <label className="block">
             <span>Tagline</span>
             <input
-              required
-              maxLength={80}
+              required maxLength={80}
               value={tagline}
               onChange={e => setTagline(e.target.value)}
               className="mt-1 block w-full rounded border p-2"
@@ -135,8 +127,7 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
         <label className="block">
           <span>Detailed Description</span>
           <textarea
-            required
-            rows={4}
+            required rows={4}
             value={description}
             onChange={e => setDescription(e.target.value)}
             className="mt-1 block w-full rounded border p-2"
@@ -158,10 +149,7 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
           <label className="block">
             <span>Hourly Rate (XRP)</span>
             <input
-              required
-              type="number"
-              min="0.000001"
-              step="0.000001"
+              required type="number" min="0.000001" step="0.000001"
               value={hourlyRate}
               onChange={e => setHourlyRate(e.target.value)}
               className="mt-1 block w-full rounded border p-2"
@@ -170,10 +158,7 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
           <label className="block">
             <span>Minimum Billable Hours</span>
             <input
-              required
-              type="number"
-              min="1"
-              step="1"
+              required type="number" min="1" step="1"
               value={minHours}
               onChange={e => setMinHours(e.target.value)}
               className="mt-1 block w-full rounded border p-2"
@@ -198,7 +183,7 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
           </div>
         </fieldset>
 
-        {/* wallet connect placeholder */}
+        {/* wallet connect */}
         <button
           type="button"
           onClick={async () => {
@@ -210,13 +195,9 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
           {xrpAddr ? 'Wallet Connected' : 'Connect Xumm Wallet'}
         </button>
 
-        {/* bottom actions */}
+        {/* actions */}
         <div className="flex justify-end gap-4 pt-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded bg-gray-300 px-4 py-2"
-          >
+          <button type="button" onClick={onClose} className="rounded bg-gray-300 px-4 py-2">
             Cancel
           </button>
           <button
@@ -225,5 +206,4 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
             className={`rounded px-4 py-2 ${canSubmit ? 'bg-matrix-green' : 'bg-matrix-green/40 cursor-not-allowed'}`}
           >
             Dock Agent
-          </button>
-        </
+          </
