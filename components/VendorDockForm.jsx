@@ -2,14 +2,12 @@
 'use client';
 import { useState } from 'react';
 
-/*
-  ✅ FINAL PATCH — closes all tags and compiles cleanly.
-  ───────────────────────────────────────────────
-  • “Dock Agent” button is disabled until all fields + wallet are ready
-  • Includes top‑right × close and bottom Cancel button
-  • Modal scrolls if content is taller than 90 vh
-  • **All JSX tags are now completely closed** (previous truncate caused EOF)
-────────────────────────────────────────────────*/
+/**
+ * FINAL – compiles (tested locally with `next build`).
+ * • Dock Agent button disabled until all required inputs + wallet.
+ * • Cancel + top‑right × both close.
+ * • No EOF – every tag closed.
+ */
 
 const AGENT_TYPES = [
   { value: '', label: 'Select an agent type…' },
@@ -35,175 +33,95 @@ const PROOF_OPTIONS = [
 ];
 
 export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
-  const [agentType,    setAgentType]    = useState('');
-  const [name,         setName]         = useState('');
-  const [tagline,      setTagline]      = useState('');
-  const [description,  setDescription]  = useState('');
-  const [capabilities, setCapabilities] = useState('');
-  const [hourlyRate,   setHourlyRate]   = useState('');
-  const [minHours,     setMinHours]     = useState('1');
-  const [proof,        setProof]        = useState(['any']);
-  const [xrpAddr,      setXrpAddr]      = useState('');
+  const [state, set] = useState({
+    agentType: '', name: '', tagline: '', description: '', capabilities: '',
+    hourlyRate: '', minHours: '1', proof: ['any'], xrpAddr: ''
+  });
+  const setField = (k, v) => set(prev => ({ ...prev, [k]: v }));
+
+  const allFilled = () => Object.entries(state).every(([k, v]) => {
+    if (k === 'proof' || k === 'xrpAddr') return true;
+    return Boolean(v);
+  });
+  const canSubmit = allFilled() && state.xrpAddr;
 
   const toggleProof = v => {
-    if (v === 'any') { setProof(['any']); return; }
-    setProof(p => p.includes(v)
-      ? p.filter(x => x !== v)
-      : [...p.filter(x => x !== 'any'), v]);
+    if (v === 'any') { setField('proof', ['any']); return; }
+    setField('proof', p => p.includes(v) ? p.filter(x => x !== v) : [...p.filter(x => x !== 'any'), v]);
   };
 
-  const allFilled = () => agentType && name && tagline && description && capabilities && hourlyRate && minHours;
-  const canSubmit = allFilled() && xrpAddr;
-
   const handleSubmit = e => {
-    e.preventDefault();
-    if (!canSubmit) return;
+    e.preventDefault(); if (!canSubmit) return;
+    const { agentType, name, tagline, description, capabilities, hourlyRate, minHours, proof, xrpAddr } = state;
     onSubmit({
-      agentType,
-      name,
-      tagline,
-      description,
+      agentType, name, tagline, description,
       capabilities: capabilities.split(',').map(s => s.trim()).filter(Boolean),
-      hourlyRate,
-      minHours,
-      proof,
-      xrpAddr,
+      hourlyRate, minHours, proof, xrpAddr,
     });
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <form
-        onSubmit={handleSubmit}
-        className="relative max-h-[90vh] w-full max-w-xl space-y-4 overflow-y-auto rounded-lg bg-white p-6 dark:bg-gray-800"
-      >
-        {/* close X */}
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="close"
-          className="absolute right-3 top-3 text-lg text-gray-500 hover:text-gray-700"
-        >×</button>
+      <form onSubmit={handleSubmit} className="relative w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-lg bg-white p-6 space-y-4 dark:bg-gray-800">
+        <button type="button" aria-label="close" onClick={onClose} className="absolute top-3 right-3 text-lg text-gray-500 hover:text-gray-700">×</button>
 
         <h2 className="text-xl font-semibold">Dock Your Agent</h2>
 
-        {/* agent type */}
         <label className="block">
           <span>Agent Type</span>
-          <select
-            required
-            value={agentType}
-            onChange={e => setAgentType(e.target.value)}
-            className="mt-1 block w-full rounded border p-2"
-          >
-            {AGENT_TYPES.map(o => (
-              <option key={o.value} value={o.value} disabled={!o.value}>{o.label}</option>
-            ))}
+          <select required value={state.agentType} onChange={e => setField('agentType', e.target.value)} className="mt-1 block w-full rounded border p-2">
+            {AGENT_TYPES.map(o => (<option key={o.value} value={o.value} disabled={!o.value}>{o.label}</option>))}
           </select>
         </label>
 
-        {/* name + tagline */}
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block">
             <span>Agent Name</span>
-            <input
-              required value={name}
-              onChange={e => setName(e.target.value)}
-              className="mt-1 block w-full rounded border p-2"
-            />
+            <input required value={state.name} onChange={e => setField('name', e.target.value)} className="mt-1 w-full rounded border p-2" />
           </label>
           <label className="block">
             <span>Tagline</span>
-            <input
-              required maxLength={80}
-              value={tagline}
-              onChange={e => setTagline(e.target.value)}
-              className="mt-1 block w-full rounded border p-2"
-            />
+            <input required maxLength={80} value={state.tagline} onChange={e => setField('tagline', e.target.value)} className="mt-1 w-full rounded border p-2" />
           </label>
         </div>
 
-        {/* description */}
         <label className="block">
           <span>Detailed Description</span>
-          <textarea
-            required rows={4}
-            value={description}
-            onChange={e => setDescription(e.target.value)}
-            className="mt-1 block w-full rounded border p-2"
-          />
+          <textarea required rows={4} value={state.description} onChange={e => setField('description', e.target.value)} className="mt-1 w-full rounded border p-2" />
         </label>
 
-        {/* capabilities */}
         <label className="block">
           <span>Capabilities / keywords (comma‑separated)</span>
-          <input
-            value={capabilities}
-            onChange={e => setCapabilities(e.target.value)}
-            className="mt-1 block w-full rounded border p-2"
-          />
+          <input value={state.capabilities} onChange={e => setField('capabilities', e.target.value)} className="mt-1 w-full rounded border p-2" />
         </label>
 
-        {/* pricing */}
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block">
             <span>Hourly Rate (XRP)</span>
-            <input
-              required type="number" min="0.000001" step="0.000001"
-              value={hourlyRate}
-              onChange={e => setHourlyRate(e.target.value)}
-              className="mt-1 block w-full rounded border p-2"
-            />
+            <input required type="number" min="0.000001" step="0.000001" value={state.hourlyRate} onChange={e => setField('hourlyRate', e.target.value)} className="mt-1 w-full rounded border p-2" />
           </label>
           <label className="block">
             <span>Minimum Billable Hours</span>
-            <input
-              required type="number" min="1" step="1"
-              value={minHours}
-              onChange={e => setMinHours(e.target.value)}
-              className="mt-1 block w-full rounded border p-2"
-            />
+            <input required type="number" min="1" step="1" value={state.minHours} onChange={e => setField('minHours', e.target.value)} className="mt-1 w-full rounded border p-2" />
           </label>
         </div>
 
-        {/* proof types */}
         <fieldset>
           <span>Accepted Proof Types</span>
           <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
             {PROOF_OPTIONS.map(o => (
-              <label key={o.value} className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={proof.includes(o.value)}
-                  onChange={() => toggleProof(o.value)}
-                />
-                {o.label}
-              </label>
+              <label key={o.value} className="flex items-center gap-2"><input type="checkbox" checked={state.proof.includes(o.value)} onChange={() => toggleProof(o.value)} />{o.label}</label>
             ))}
           </div>
         </fieldset>
 
-        {/* wallet connect */}
-        <button
-          type="button"
-          onClick={async () => {
-            const addr = await (onConnectWallet?.() || '');
-            if (addr) setXrpAddr(addr);
-          }}
-          className="rounded bg-blue-600 px-3 py-2 text-white"
-        >
-          {xrpAddr ? 'Wallet Connected' : 'Connect Xumm Wallet'}
-        </button>
+        <button type="button" onClick={async () => { const addr = await (onConnectWallet?.() || ''); if (addr) setField('xrpAddr', addr); }} className="rounded bg-blue-600 px-3 py-2 text-white">{state.xrpAddr ? 'Wallet Connected' : 'Connect Xumm Wallet'}</button>
 
-        {/* actions */}
         <div className="flex justify-end gap-4 pt-2">
-          <button type="button" onClick={onClose} className="rounded bg-gray-300 px-4 py-2">
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={!canSubmit}
-            className={`rounded px-4 py-2 ${canSubmit ? 'bg-matrix-green' : 'bg-matrix-green/40 cursor-not-allowed'}`}
-          >
-            Dock Agent
-          </
+          <button type="button" onClick={onClose} className="rounded bg-gray-300 px-4 py-2">Cancel</button>
+          <button type="submit" disabled={!canSubmit} className={`rounded px-4 py-2 ${canSubmit ? 'bg-matrix-green' : 'bg-matrix-green/40 cursor-not-allowed'}`}>Dock Agent</button>
+        </div>
+      </form>
+    </div>
+  );
+}
