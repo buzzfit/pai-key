@@ -1,25 +1,15 @@
 // app/vendors/page.jsx
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { init, send } from '@emailjs/browser';
 import VendorDockForm from '../../components/VendorDockForm';
 
 const EMAIL_OK = v => /^[\w-.]+@([\w-]+\.)+[\w-]{2,}$/i.test(v.trim());
-
-/* your EmailJS IDs */
-const SERVICE_ID          = 'service_pai_smtp';
-const TEMPLATE_WELCOME_ID = 'template_ydort24';  // template_welcome
-const TEMPLATE_ADMIN_ID   = 'template_7kj4bte';  // template_admin
-const PUBLIC_KEY          = 'qw2tG7e_AKMJ2Ml_y';
 
 export default function VendorsPage() {
   const router = useRouter();
   const [capturedEmail, setCapturedEmail] = useState('');
   const [showForm,      setShowForm]      = useState(false);
-
-  /* initialise EmailJS once */
-  useEffect(() => { init(PUBLIC_KEY); }, []);
 
   /* ─ email prompt ─ */
   function EmailGate() {
@@ -28,23 +18,18 @@ export default function VendorsPage() {
     const [error,      setError]      = useState('');
 
     const handleContinue = async () => {
-      if (!EMAIL_OK(emailLocal) || sending) return;
+      if (!EMAIL_OK(emailLocal)) return;
       setSending(true); setError('');
 
       try {
-        /* 1️⃣ admin alert */
-        await send(SERVICE_ID, TEMPLATE_ADMIN_ID, {
-          user_email: emailLocal,
-          user_type : 'vendor',
+        // call the common server-side route (sends both mails)
+        const r = await fetch('/api/email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ role: 'vendor', email: emailLocal })
         });
+        if (!r.ok) throw new Error('mail api failed');
 
-        /* 2️⃣ welcome e-mail */
-        await send(SERVICE_ID, TEMPLATE_WELCOME_ID, {
-          to_email : emailLocal,
-          user_type: 'vendor',
-        });
-
-        /* open dock form */
         setCapturedEmail(emailLocal);
         setShowForm(true);
       } catch (e) {
@@ -108,7 +93,10 @@ export default function VendorsPage() {
           email={capturedEmail}
           onSubmit={() => setShowForm(false)}
           onClose={() => setShowForm(false)}
-          onConnectWallet={async () => ''}
+          onConnectWallet={async () => {
+            alert('TODO: wire Xumm connect');
+            return '';                 // placeholder address later
+          }}
         />
       )}
     </>
