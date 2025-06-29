@@ -18,11 +18,10 @@ export default function VendorsPage() {
     const [error,      setError]      = useState('');
 
     const handleContinue = async () => {
-      if (!EMAIL_OK(emailLocal)) return;
+      if (!EMAIL_OK(emailLocal) || sending) return;
       setSending(true); setError('');
 
       try {
-        // call the common server-side route (sends both mails)
         const r = await fetch('/api/email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -95,7 +94,7 @@ export default function VendorsPage() {
           onClose={() => setShowForm(false)}
           onConnectWallet={async () => {
             alert('TODO: wire Xumm connect');
-            return '';                 // placeholder address later
+            return '';                // placeholder address
           }}
         />
       )}
