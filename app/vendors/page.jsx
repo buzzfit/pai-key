@@ -6,15 +6,11 @@ import VendorDockForm from '../../components/VendorDockForm';
 
 export default function VendorsPage() {
   const router = useRouter();
-
-  /* ── gate state ───────────────────────────── */
   const [capturedEmail, setCapturedEmail] = useState('');
-  const [showForm,      setShowForm]      = useState(false);
+  const [showForm, setShowForm]          = useState(false);
 
-  /* ── e-mail prompt with Cancel ────────────── */
   function EmailGate() {
     const [emailLocal, setEmailLocal] = useState('');
-
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
         <div className="w-full max-w-md space-y-4 rounded-lg bg-white p-6 dark:bg-gray-800">
@@ -60,22 +56,21 @@ export default function VendorsPage() {
     );
   }
 
-  /* ── render ───────────────────────────────── */
   return (
     <>
       {!showForm && <EmailGate />}
 
       {showForm && (
         <VendorDockForm
-          email={capturedEmail}          {/* (optional) forward the e-mail */}
+          email={capturedEmail}
           onSubmit={data => {
             console.log('TODO: POST /api/vendors', data);
-            setShowForm(false);          // later: router.push('/dashboard')
+            setShowForm(false);
           }}
           onClose={() => setShowForm(false)}
           onConnectWallet={async () => {
             alert('TODO: wire Xumm connect');
-            return '';                   // return XRPL address later
+            return '';
           }}
         />
       )}
