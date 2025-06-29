@@ -4,65 +4,58 @@
 import { useState, useEffect } from 'react';
 import { init, send } from '@emailjs/browser';
 
-const PUBLIC_KEY = 'qw2tG7e_AKMJ2Ml_y';
-const SERVICE_ID = 'service_pai_smtp';
-const TEMPLATE_USER  = 'template_user_confirm';
-const TEMPLATE_ADMIN = 'template_admin_notify';
+export default function EmailSignupForm({ onSignUp, onClose }) {
+  /* 1️⃣  initialise EmailJS once */
+  useEffect(() => {
+    init('qw2tG7e_AKMJ2Ml_y');          // ← your Public Key
+  }, []);
 
-// quick e-mail validator
-const EMAIL_OK = v => /^\S+@\S+\.\S+$/.test(v.trim());
+  const [email, setEmail]   = useState('');
+  const [error, setError]   = useState('');
+  const [status, setStatus] = useState('');
 
-export default function EmailSignupForm({ onSignUp, onClose, onConnectWallet }) {
-  useEffect(() => { init(PUBLIC_KEY); }, []);
-
-  const [email,   setEmail]   = useState('');
-  const [xrpAddr, setXrpAddr] = useState('');
-  const [error,   setError]   = useState('');
-  const [status,  setStatus]  = useState('');
-  const canSubmit = EMAIL_OK(email) && xrpAddr && !status.startsWith('Sending');
-
-  /* submit → send both e-mails */
+  /* 2️⃣  handle submit */
   const handleSubmit = async e => {
     e.preventDefault();
-    if (!canSubmit) return;
 
-    setStatus('Sending…'); setError('');
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      setError('Please enter a valid email.');
+      return;
+    }
+    setError('');
+    setStatus('Sending…');
 
     try {
-      /* notify admin */
-      await send(SERVICE_ID, TEMPLATE_ADMIN, {
-        user_email : email,
-        user_type  : 'hirer',
+      /* 2a – notify admin */
+      await send('service_pai_smtp', 'template_admin_notify', {
+        user_email: email,
       });
 
-      /* confirmation to user */
-      await send(SERVICE_ID, TEMPLATE_USER, {
-        to_email   : email,
-        user_type  : 'hirer',
+      /* 2b – welcome user */
+      await send('service_pai_smtp', 'template_user_confirm', {
+        user_email: email,
       });
 
-      /* proceed */
+      /* 2c – persist & continue */
       localStorage.setItem('paiKeySignedUp', 'true');
       localStorage.setItem('paiKeyEmail', email);
       setStatus('Success! Check your inbox.');
-      onSignUp({ email, xrpAddr });
-
+      onSignUp(email);
     } catch (err) {
       console.error('EmailJS error:', err);
-      setError('Failed to send e-mails. Please try again later.');
+      setError('Failed to send emails. Please try again later.');
       setStatus('');
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/75 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75">
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-sm space-y-4 rounded-md bg-white p-6"
       >
-        <h2 className="text-2xl font-bold">Sign Up for Early Access</h2>
+        <h2 className="text-2xl font-bold text-black">Sign Up for Early Access</h2>
 
-        {/* e-mail */}
         <input
           type="email"
           placeholder="you@example.com"
@@ -71,18 +64,6 @@ export default function EmailSignupForm({ onSignUp, onClose, onConnectWallet }) 
           className="w-full rounded border px-3 py-2 focus:outline-none"
           required
         />
-
-        {/* wallet connect */}
-        <button
-          type="button"
-          onClick={async () => {
-            const addr = await (onConnectWallet?.() || '');
-            if (addr) setXrpAddr(addr);
-          }}
-          className="w-full rounded bg-blue-600 px-3 py-2 text-white"
-        >
-          {xrpAddr ? 'Wallet Connected' : 'Connect Xumm Wallet'}
-        </button>
 
         {error  && <p className="text-red-600">{error}</p>}
         {status && <p className="text-green-600">{status}</p>}
@@ -97,12 +78,7 @@ export default function EmailSignupForm({ onSignUp, onClose, onConnectWallet }) 
           </button>
           <button
             type="submit"
-            disabled={!canSubmit}
-            className={`rounded px-4 py-2 ${
-              canSubmit
-                ? 'bg-matrix-green text-black'
-                : 'bg-matrix-green/40 cursor-not-allowed'
-            }`}
+            className="rounded bg-matrix-green px-4 py-2 text-black hover:opacity-90 transition"
           >
             Sign Up
           </button>
