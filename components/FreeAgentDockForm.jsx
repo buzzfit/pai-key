@@ -79,7 +79,7 @@ export default function FreeAgentDockForm({ email, onSubmit, onClose, onConnectW
       <form onSubmit={handleSubmit} className="relative max-h-[90vh] w-full max-w-xl space-y-4 overflow-y-auto rounded-lg bg-white p-6 dark:bg-gray-800">
         <button type="button" onClick={onClose} aria-label="close" className="absolute right-3 top-3 text-lg text-gray-500 hover:text-gray-700">×</button>
 
-        <h2 className="text-xl font-semibold">Dock Your Free Agent</h2>
+        <h2 className="text-xl font-semibold">Free Agent Docking</h2>
 
         {/* Email (read‑only) */}
         <label className="block">
