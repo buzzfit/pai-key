@@ -4,11 +4,15 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import VendorDockForm from '../../components/VendorDockForm';
 
+// simple e-mail validator
+const EMAIL_OK = v => /^[\w-.]+@([\w-]+\.)+[\w-]{2,}$/i.test(v.trim());
+
 export default function VendorsPage() {
   const router = useRouter();
   const [capturedEmail, setCapturedEmail] = useState('');
-  const [showForm, setShowForm]          = useState(false);
+  const [showForm,      setShowForm]      = useState(false);
 
+  /* ── email prompt ─────────────────────────────────────────── */
   function EmailGate() {
     const [emailLocal, setEmailLocal] = useState('');
     return (
@@ -37,13 +41,13 @@ export default function VendorsPage() {
 
             <button
               type="button"
-              disabled={!emailLocal}
+              disabled={!EMAIL_OK(emailLocal)}
               onClick={() => {
                 setCapturedEmail(emailLocal);
                 setShowForm(true);
               }}
               className={`rounded px-4 py-2 ${
-                emailLocal
+                EMAIL_OK(emailLocal)
                   ? 'bg-matrix-green text-black'
                   : 'bg-matrix-green/40 cursor-not-allowed'
               }`}
@@ -56,6 +60,7 @@ export default function VendorsPage() {
     );
   }
 
+  /* ── render ────────────────────────────────────────────────── */
   return (
     <>
       {!showForm && <EmailGate />}
