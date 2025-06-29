@@ -8,26 +8,20 @@ import EmailSignupForm from '../components/EmailSignupForm';
 import JobTemplateForm from '../components/JobTemplateForm';
 
 export default function Home() {
-  // Step 1: show the email signup modal
   const [showSignup, setShowSignup] = useState(false);
-  // Step 2: once signed up, show the job template modal
-  const [showForm, setShowForm] = useState(false);
+  const [showForm,   setShowForm]   = useState(false);
 
-  // Open signup when the "Get Started" button is clicked
-  const handleOpenSignup = () => setShowSignup(true);
-  // Close signup without proceeding
+  const handleOpenSignup  = () => setShowSignup(true);
   const handleCloseSignup = () => setShowSignup(false);
-  // After successful signup, close signup & open the job form
-  const handleSignup = (email) => {
+
+  const handleSignup = email => {
     console.log('Signed up:', email);
     setShowSignup(false);
     setShowForm(true);
   };
 
-  // Close or cancel the job template form
-  const handleCloseForm = () => setShowForm(false);
-  // Handle form submission (stubbed for now)
-  const handleFormSubmit = (data) => {
+  const handleCloseForm   = () => setShowForm(false);
+  const handleFormSubmit  = data => {
     console.log('Job Template submitted:', data);
     setShowForm(false);
   };
@@ -47,11 +41,17 @@ export default function Home() {
         <JobTemplateForm
           onSubmit={handleFormSubmit}
           onClose={handleCloseForm}
+          /** ───── ADD THIS PROP ───── **/
+          onConnectWallet={async () => {
+            // the same placeholder pop-down used elsewhere
+            alert('TODO: wire Xumm connect');
+            return '';            // later: return XRPL address string
+          }}
         />
       )}
 
       {/* 3) Main page */}
-      <Hero onGetStarted={handleOpenSignup} />
+      <Hero      onGetStarted={handleOpenSignup} />
       <Features />
     </>
   );
