@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import VendorDockForm from '../../components/VendorDockForm';
 
-// simple e-mail validator
+// simple validator
 const EMAIL_OK = v => /^[\w-.]+@([\w-]+\.)+[\w-]{2,}$/i.test(v.trim());
 
 export default function VendorsPage() {
@@ -12,9 +12,9 @@ export default function VendorsPage() {
   const [capturedEmail, setCapturedEmail] = useState('');
   const [showForm,      setShowForm]      = useState(false);
 
-  /* ── email prompt ─────────────────────────────────────────── */
   function EmailGate() {
     const [emailLocal, setEmailLocal] = useState('');
+
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
         <div className="w-full max-w-md space-y-4 rounded-lg bg-white p-6 dark:bg-gray-800">
@@ -42,7 +42,19 @@ export default function VendorsPage() {
             <button
               type="button"
               disabled={!EMAIL_OK(emailLocal)}
-              onClick={() => {
+              onClick={async () => {
+                // 1️⃣ fire e-mails (welcome + admin)
+                try {
+                  await fetch('/api/email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ role: 'vendor', email: emailLocal }),
+                  });
+                } catch (err) {
+                  console.error('Email send failed', err);
+                }
+
+                // 2️⃣ open dock form
                 setCapturedEmail(emailLocal);
                 setShowForm(true);
               }}
@@ -60,7 +72,6 @@ export default function VendorsPage() {
     );
   }
 
-  /* ── render ────────────────────────────────────────────────── */
   return (
     <>
       {!showForm && <EmailGate />}
