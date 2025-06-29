@@ -1,18 +1,22 @@
 // app/free-agents/page.jsx
 'use client';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import FreeAgentDockForm from '../../components/FreeAgentDockForm';
 
 export default function FreeAgentsPage() {
+  const router = useRouter();
   const [capturedEmail, setCapturedEmail] = useState('');
   const [showForm, setShowForm]          = useState(false);
 
+  /** ─── Email gate with Cancel ─── **/
   function EmailGate() {
     const [emailLocal, setEmailLocal] = useState('');
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-        <div className="space-y-4 rounded-lg bg-white p-6 dark:bg-gray-800">
+        <div className="space-y-4 rounded-lg bg-white p-6 dark:bg-gray-800 w-full max-w-md">
           <h2 className="text-xl font-semibold">Join Free-Agents Early Access</h2>
+
           <input
             type="email"
             required
@@ -22,17 +26,34 @@ export default function FreeAgentsPage() {
             className="w-full rounded border p-2"
             autoFocus
           />
-          <button
-            onClick={() => {
-              if (emailLocal) {
+
+          <div className="flex justify-end gap-3 pt-2">
+            {/* Cancel goes back to home (or close modal) */}
+            <button
+              type="button"
+              onClick={() => router.push('/')}
+              className="rounded bg-gray-300 px-4 py-2"
+            >
+              Cancel
+            </button>
+
+            {/* Continue enables only if email typed */}
+            <button
+              type="button"
+              disabled={!emailLocal}
+              onClick={() => {
                 setCapturedEmail(emailLocal);
                 setShowForm(true);
-              }
-            }}
-            className="w-full rounded bg-matrix-green px-4 py-2 text-black"
-          >
-            Continue
-          </button>
+              }}
+              className={`rounded px-4 py-2 ${
+                emailLocal
+                  ? 'bg-matrix-green text-black'
+                  : 'bg-matrix-green/40 cursor-not-allowed'
+              }`}
+            >
+              Continue
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -46,12 +67,12 @@ export default function FreeAgentsPage() {
           email={capturedEmail}
           onSubmit={data => {
             console.log('TODO: POST /api/free-agents', data);
-            setShowForm(false);          // later: route to dashboard
+            setShowForm(false);            // later: router.push('/dashboard')
           }}
           onClose={() => setShowForm(false)}
           onConnectWallet={async () => {
             alert('TODO: wire Xumm connect');
-            return '';                   // return XRPL address later
+            return '';                     // return XRPL address later
           }}
         />
       )}
