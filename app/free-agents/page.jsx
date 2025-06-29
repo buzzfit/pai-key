@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import FreeAgentDockForm from '../../components/FreeAgentDockForm';
 
-// RFC-lite validator
+// simple validator
 const EMAIL_OK = v => /^[\w-.]+@([\w-]+\.)+[\w-]{2,}$/i.test(v.trim());
 
 export default function FreeAgentsPage() {
@@ -42,7 +42,19 @@ export default function FreeAgentsPage() {
             <button
               type="button"
               disabled={!EMAIL_OK(emailLocal)}
-              onClick={() => {
+              onClick={async () => {
+                /* 1️⃣ send welcome + admin emails */
+                try {
+                  await fetch('/api/email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ role: 'free', email: emailLocal }),
+                  });
+                } catch (err) {
+                  console.error('Email send failed', err);
+                }
+
+                /* 2️⃣ open dock form */
                 setCapturedEmail(emailLocal);
                 setShowForm(true);
               }}
@@ -70,12 +82,12 @@ export default function FreeAgentsPage() {
           email={capturedEmail}
           onSubmit={data => {
             console.log('TODO: POST /api/free-agents', data);
-            setShowForm(false);          // later: router.push('/dashboard')
+            setShowForm(false);
           }}
           onClose={() => setShowForm(false)}
           onConnectWallet={async () => {
             alert('TODO: wire Xumm connect');
-            return '';                   // XRPL address later
+            return '';
           }}
         />
       )}
