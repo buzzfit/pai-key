@@ -1,31 +1,35 @@
 // app/vendors/page.jsx
 'use client';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import VendorDockForm from '../../components/VendorDockForm';
+import { connectXummInteractive } from '../../lib/xummConnectClient';
 
 const EMAIL_OK = v => /^[\w-.]+@([\w-]+\.)+[\w-]{2,}$/i.test(v.trim());
 
 export default function VendorsPage() {
   const router = useRouter();
   const [capturedEmail, setCapturedEmail] = useState('');
-  const [showForm,      setShowForm]      = useState(false);
+  const [showForm, setShowForm] = useState(false);
 
   /* ─ email prompt ─ */
   function EmailGate() {
     const [emailLocal, setEmailLocal] = useState('');
-    const [sending,    setSending]    = useState(false);
-    const [error,      setError]      = useState('');
+    const [sending, setSending] = useState(false);
+    const [error, setError] = useState('');
 
     const handleContinue = async () => {
       if (!EMAIL_OK(emailLocal) || sending) return;
-      setSending(true); setError('');
+      setSending(true);
+      setError('');
 
       try {
+        // Send admin + welcome emails (existing API)
         const r = await fetch('/api/email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ role: 'vendor', email: emailLocal })
+          body: JSON.stringify({ role: 'vendor', email: emailLocal }),
         });
         if (!r.ok) throw new Error('mail api failed');
 
@@ -93,8 +97,16 @@ export default function VendorsPage() {
           onSubmit={() => setShowForm(false)}
           onClose={() => setShowForm(false)}
           onConnectWallet={async () => {
-            alert('TODO: wire Xumm connect');
-            return '';                // placeholder address
+            try {
+              // Opens Xumm deep link / QR and polls until signed.
+              // Our status route sets HttpOnly cookies on success.
+              const acct = await connectXummInteractive();
+              return acct; // flips button to "Wallet Connected"
+            } catch (err) {
+              console.error(err);
+              alert('Wallet connect failed or timed out. Please try again.');
+              return '';
+            }
           }}
         />
       )}
