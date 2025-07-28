@@ -30,22 +30,22 @@ export async function GET(request) {
   const data = await res.json();
   const signed    = data?.meta?.signed === true;
   const account   = data?.response?.account || null;
-  const userToken = data?.response?.user_token || null;
+  const userToken = data?.response?.user_token || null; // may be null now
 
   if (!signed || !account) {
     return NextResponse.json({ signed: false });
   }
 
-  // Build response JSON
+  // Build the JSON response
   const resp = NextResponse.json({ signed: true, account, userToken });
 
-  // Secure, HttpOnly cookies so JS can’t read them (server can).
+  // Set secure cookies so the wallet “sticks” for 7 days
   const opts = {
     httpOnly: true,
     secure: true,
     sameSite: 'strict',
     path: '/',
-    maxAge: 60 * 60 * 24 * 7, // 7 days
+    maxAge: 60 * 60 * 24 * 7,
   };
   resp.cookies.set('xummAccount', account, opts);
   if (userToken) resp.cookies.set('xummUserToken', userToken, opts);
