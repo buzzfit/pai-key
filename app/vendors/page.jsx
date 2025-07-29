@@ -94,7 +94,10 @@ export default function VendorsPage() {
       {showForm && (
         <VendorDockForm
           email={capturedEmail}
-          onSubmit={() => setShowForm(false)}
+          onSubmit={() => {
+            // After saving the agent, go straight to the dock
+            router.push('/vendors/dock');
+          }}
           onClose={() => setShowForm(false)}
           onConnectWallet={async () => {
             try {
