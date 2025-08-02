@@ -3,23 +3,23 @@
 
 import { useState } from 'react';
 
-/* preset agent categories */
+/* ── preset agent categories (unchanged) ───────────────────────── */
 const AGENT_TYPES = [
   { value: '', label: 'Select an agent type…' },
-  { value: 'transportation', label: 'Transportation Agent' },
-  { value: 'delivery', label: 'Delivery Agent' },
+  { value: 'transportation',  label: 'Transportation Agent' },
+  { value: 'delivery',        label: 'Delivery Agent' },
   { value: 'aerial_inspection', label: 'Aerial Inspection Agent' },
-  { value: 'service_robot', label: 'Service Robot' },
-  { value: 'code_gen', label: 'Code Gen Agent' },
-  { value: 'data_analysis', label: 'Data Analysis Agent' },
-  { value: 'content_creation', label: 'Content Creation Agent' },
-  { value: 'decision_support', label: 'Decision-Support Agent' },
-  { value: 'customer_support', label: 'Customer Support Agent' },
+  { value: 'service_robot',   label: 'Service Robot' },
+  { value: 'code_gen',        label: 'Code Gen Agent' },
+  { value: 'data_analysis',   label: 'Data Analysis Agent' },
+  { value: 'content_creation',label: 'Content Creation Agent' },
+  { value: 'decision_support',label: 'Decision-Support Agent' },
+  { value: 'customer_support',label: 'Customer Support Agent' },
 ];
 
-/* proof options */
+/* ── proof options (now includes “any”) ────────────────────────── */
 const PROOF_TYPES = [
-  { value: '', label: 'Select a proof type…' },
+  { value: 'any',        label: 'Any (agent decides)' },
   { value: 'file_hash',  label: 'File Hash (SHA-256)' },
   { value: 'image_hash', label: 'Image / Video Hash' },
   { value: 'git_commit', label: 'Git Commit Hash' },
@@ -31,12 +31,12 @@ const PROOF_TYPES = [
 export default function JobTemplateForm({ onSubmit, onClose, onConnectWallet }) {
   const [agentType, setAgentType] = useState('');
   const [scope,     setScope]     = useState('');
-  const [proofType, setProofType] = useState('');
+  const [proofType, setProofType] = useState('any');   // default to Any
   const [maxHours,  setMaxHours]  = useState('1');
   const [xrpAddr,   setXrpAddr]   = useState('');
 
   const allFilled =
-    agentType && scope && proofType && Number(maxHours) >= 1 && xrpAddr;
+    agentType && scope && Number(maxHours) >= 1 && xrpAddr;
 
   const handleSubmit = e => {
     e.preventDefault();
@@ -91,9 +91,7 @@ export default function JobTemplateForm({ onSubmit, onClose, onConnectWallet }) 
             className="mt-1 w-full rounded border p-2 dark:bg-gray-700 dark:text-gray-100"
           >
             {PROOF_TYPES.map(o => (
-              <option key={o.value} value={o.value} disabled={!o.value}>
-                {o.label}
-              </option>
+              <option key={o.value} value={o.value}>{o.label}</option>
             ))}
           </select>
         </label>
