@@ -1,34 +1,40 @@
-// app/page.jsx
+// app/page.jsx   (“Hire” entry point)
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Hero from '../components/Hero';
 import Features from '../components/Features';
 import EmailSignupForm from '../components/EmailSignupForm';
 import JobTemplateForm from '../components/JobTemplateForm';
+import { connectXummInteractive } from '../lib/xummConnectClient';
 
 export default function Home() {
+  const router = useRouter();
+
   const [showSignup, setShowSignup] = useState(false);
   const [showForm,   setShowForm]   = useState(false);
 
+  /* ───── e-mail modal ───── */
   const handleOpenSignup  = () => setShowSignup(true);
   const handleCloseSignup = () => setShowSignup(false);
 
-  const handleSignup = email => {
-    console.log('Signed up:', email);
+  const handleSignup = () => {
     setShowSignup(false);
     setShowForm(true);
   };
 
-  const handleCloseForm   = () => setShowForm(false);
-  const handleFormSubmit  = data => {
-    console.log('Job Template submitted:', data);
+  /* ───── job template modal ───── */
+  const handleCloseForm  = () => setShowForm(false);
+
+  const handleFormSubmit = () => {
+    // later we’ll POST job & escrow … for now just open lobby
     setShowForm(false);
+    router.push('/hire/lobby');
   };
 
   return (
     <>
-      {/* 1) Email signup modal */}
       {showSignup && (
         <EmailSignupForm
           onSignUp={handleSignup}
@@ -36,21 +42,23 @@ export default function Home() {
         />
       )}
 
-      {/* 2) Job template modal */}
       {showForm && (
         <JobTemplateForm
           onSubmit={handleFormSubmit}
           onClose={handleCloseForm}
-          /** ───── ADD THIS PROP ───── **/
           onConnectWallet={async () => {
-            // the same placeholder pop-down used elsewhere
-            alert('TODO: wire Xumm connect');
-            return '';            // later: return XRPL address string
+            try {
+              const acct = await connectXummInteractive();
+              return acct;          // shows “Wallet Connected”
+            } catch (err) {
+              console.error(err);
+              alert('Wallet connect failed or timed out.');
+              return '';
+            }
           }}
         />
       )}
 
-      {/* 3) Main page */}
       <Hero      onGetStarted={handleOpenSignup} />
       <Features />
     </>
