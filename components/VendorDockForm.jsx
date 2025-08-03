@@ -39,8 +39,7 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
   useEffect(() => {
     (async () => {
       try {
-        const me = await fetch('/api/me', { cache: 'no-store' })
-                         .then(r => r.json());
+        const me = await fetch('/api/me', { cache: 'no-store' }).then(r => r.json());
         if (me?.account) setField('xrpAddr', me.account);
       } catch {/* ignore */}
     })();
@@ -99,7 +98,9 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
           aria-label="close"
           onClick={onClose}
           className="absolute right-3 top-3 text-lg text-gray-500 hover:text-gray-700"
-        >×</button>
+        >
+          ×
+        </button>
 
         <h2 className="text-xl font-semibold">Dock Your Agent</h2>
 
@@ -123,8 +124,7 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
           <label className="block">
             <span>Agent Name</span>
             <input
-              required
-              value={state.name}
+              required value={state.name}
               onChange={e => setField('name', e.target.value)}
               className="mt-1 w-full rounded border p-2"
             />
@@ -132,8 +132,7 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
           <label className="block">
             <span>Tagline</span>
             <input
-              required
-              maxLength={80}
+              required maxLength={80}
               value={state.tagline}
               onChange={e => setField('tagline', e.target.value)}
               className="mt-1 w-full rounded border p-2"
@@ -145,8 +144,7 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
         <label className="block">
           <span>Detailed Description</span>
           <textarea
-            required
-            rows={4}
+            required rows={4}
             value={state.description}
             onChange={e => setField('description', e.target.value)}
             className="mt-1 w-full rounded border p-2"
