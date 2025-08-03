@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 
-/* … (everything above is identical, omitted for brevity) … */
+/* … (everything above here is unchanged) … */
 
         {/* actions */}
         <div className="flex justify-end gap-4 pt-2">
@@ -14,10 +14,11 @@ import { useState, useEffect } from 'react';
           >
             Cancel
           </button>
+
+          {/* label always readable */}
           <button
             type="submit"
             disabled={!canSubmit}
-            /* 🔹 Add text-black so label is always readable */
             className={`rounded px-4 py-2 text-black ${
               canSubmit
                 ? 'bg-matrix-green hover:opacity-90'
