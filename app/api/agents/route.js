@@ -1,47 +1,41 @@
 // app/api/agents/route.js
 import { NextResponse } from 'next/server';
-import { cookies }       from 'next/headers';
+import { cookies }      from 'next/headers';
+import store            from './_store';
 
-export const dynamic = 'force-dynamic';   // never cache — always run on server
+export const dynamic = 'force-dynamic';   // never cache
 
-// ⚠️ in-memory store (gone on cold start) — fine until we move to Prisma
-let AGENTS = [];
-
-/*────────────────────────── GET /api/agents ──────────────────────────
+/* ─────────────── GET /api/agents ───────────────
    Optional query params:
-     ?account=rX...      → only that vendor’s agents
-     ?type=code_gen      → only that agent type
+     ?account=rX...   → that vendor’s agents only
+     ?type=code_gen   → filter by agent type
 */
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const account = searchParams.get('account');
   const type    = searchParams.get('type');
 
-  let list = AGENTS;
+  let list = store();
   if (account) list = list.filter(a => a.vendorAccount === account);
   if (type)    list = list.filter(a => a.agentType      === type);
 
-  // newest first
-  list = [...list].sort((a, b) => b.createdAt - a.createdAt);
-
+  list = [...list].sort((a, b) => b.createdAt - a.createdAt);   // newest first
   return NextResponse.json({ agents: list });
 }
 
-/*────────────────────────── POST /api/agents ─────────────────────────
+/* ─────────────── POST /api/agents ───────────────
    Body: {
      agentType, name, tagline, description, capabilities[],
      hourlyRate, minHours, proof[], xrpAddr
    }
-   * Requires vendor authenticated via xummAccount cookie *
+   Requires xummAccount cookie (vendor auth)
 */
 export async function POST(request) {
   const body = await request.json().catch(() => null);
   if (!body) return NextResponse.json({ error: 'Bad JSON' }, { status: 400 });
 
-  const jar           = cookies();
-  const vendorAccount = jar.get('xummAccount')?.value;
-  if (!vendorAccount)
-    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+  const vendorAccount = cookies().get('xummAccount')?.value;
+  if (!vendorAccount) return NextResponse.json({ error:'Not authenticated' }, { status:401 });
 
   const {
     agentType, name, tagline, description,
@@ -50,32 +44,23 @@ export async function POST(request) {
   } = body;
 
   if (!agentType || !name || !tagline || !description || !hourlyRate || !minHours)
-    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    return NextResponse.json({ error:'Missing fields' }, { status:400 });
 
   const rec = {
-    id:           crypto.randomUUID(),
+    id:             crypto.randomUUID(),
     vendorAccount,
     agentType, name, tagline, description,
     capabilities,
-    hourlyRate:   String(hourlyRate),
-    minHours:     String(minHours),
+    hourlyRate:     String(hourlyRate),
+    minHours:       String(minHours),
     proof,
-    payoutAccount: xrpAddr || vendorAccount,   // fallback to vendor wallet
+    payoutAccount:  xrpAddr || vendorAccount,
     completed_jobs: 0,
     avg_rating:     0,
     busy:           false,
     createdAt:      Date.now(),
   };
 
-  AGENTS.push(rec);
-  return NextResponse.json({ ok: true, agent: rec }, { status: 201 });
-}
-
-/*──────────────────────── DELETE /api/agents/:id ─────────────────────
-   Called from VendorDock “Delete” button (soon).
-*/
-export async function DELETE(request) {
-  const id = request.nextUrl.pathname.split('/').pop();
-  AGENTS   = AGENTS.filter(a => a.id !== id);
-  return NextResponse.json({ ok: true });
+  store().push(rec);
+  return NextResponse.json({ ok:true, agent:rec }, { status:201 });
 }
