@@ -6,12 +6,12 @@ import { useState, useEffect } from 'react';
 /* ───────── Static lookup tables ───────── */
 const AGENT_TYPES = [
   { value: '', label: 'Select an agent type…' },
-  { value: 'transportation', label: 'Transportation Agent' },
-  { value: 'delivery', label: 'Delivery Agent' },
-  { value: 'aerial_inspection', label: 'Aerial Inspection Agent' },
-  { value: 'service_robot', label: 'Service Robot' },
-  { value: 'code_gen', label: 'Code Gen Agent' },
-  { value: 'data_analysis', label: 'Data Analysis Agent' },
+  { value: 'transportation',   label: 'Transportation Agent' },
+  { value: 'delivery',         label: 'Delivery Agent' },
+  { value: 'aerial_inspection',label: 'Aerial Inspection Agent' },
+  { value: 'service_robot',    label: 'Service Robot' },
+  { value: 'code_gen',         label: 'Code Gen Agent' },
+  { value: 'data_analysis',    label: 'Data Analysis Agent' },
   { value: 'content_creation', label: 'Content Creation Agent' },
   { value: 'decision_support', label: 'Decision-Support Agent' },
   { value: 'customer_support', label: 'Customer Support Agent' },
@@ -30,10 +30,17 @@ const PROOF_OPTIONS = [
 /* ───────── Component ───────── */
 export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
   const [state, setState] = useState({
-    agentType: '', name: '', tagline: '', description: '', capabilities: '',
-    hourlyRate: '', minHours: '1', proof: ['any'], xrpAddr: ''
+    agentType   : '',
+    name        : '',
+    tagline     : '',
+    description : '',
+    capabilities: '',
+    hourlyRate  : '',
+    minHours    : '1',
+    proof       : ['any'],
+    xrpAddr     : ''
   });
-  const setField = (k, v) => setState(prev => ({ ...prev, [k]: v }));
+  const setField = (k, v) => setState(p => ({ ...p, [k]: v }));
 
   /* Prefill XRPL account from secure cookie */
   useEffect(() => {
@@ -70,14 +77,16 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
   const handleSubmit = e => {
     e.preventDefault();
     if (!canSubmit) return;
-    const { agentType, name, tagline, description,
-            capabilities, hourlyRate, minHours, proof, xrpAddr } = state;
+    const {
+      agentType, name, tagline, description,
+      capabilities, hourlyRate, minHours, proof, xrpAddr
+    } = state;
     onSubmit({
       agentType,
       name,
       tagline,
       description,
-      capabilities: capabilities.split(',').map(s => s.trim()).filter(Boolean),
+      capabilities : capabilities.split(',').map(s => s.trim()).filter(Boolean),
       hourlyRate,
       minHours,
       proof,
@@ -85,12 +94,14 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
     });
   };
 
-  /* render */
+  /* ───────── Render ───────── */
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <form
         onSubmit={handleSubmit}
-        className="relative max-h-[90vh] w-full max-w-xl space-y-4 overflow-y-auto rounded-lg bg-white p-6 dark:bg-gray-800"
+        /* 🔹 new utility ensures all text (labels + inputs) is visible */
+        className="relative max-h-[90vh] w-full max-w-xl space-y-4 overflow-y-auto
+                   rounded-lg bg-white p-6 text-matrix-green dark:bg-gray-800"
       >
         {/* close X */}
         <button
@@ -98,9 +109,7 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
           aria-label="close"
           onClick={onClose}
           className="absolute right-3 top-3 text-lg text-gray-500 hover:text-gray-700"
-        >
-          ×
-        </button>
+        >×</button>
 
         <h2 className="text-xl font-semibold">Dock Your Agent</h2>
 
@@ -124,7 +133,8 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
           <label className="block">
             <span>Agent Name</span>
             <input
-              required value={state.name}
+              required
+              value={state.name}
               onChange={e => setField('name', e.target.value)}
               className="mt-1 w-full rounded border p-2"
             />
@@ -132,7 +142,8 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
           <label className="block">
             <span>Tagline</span>
             <input
-              required maxLength={80}
+              required
+              maxLength={80}
               value={state.tagline}
               onChange={e => setField('tagline', e.target.value)}
               className="mt-1 w-full rounded border p-2"
