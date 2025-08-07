@@ -1,4 +1,3 @@
-// app/vendors/dock/page.jsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -47,7 +46,7 @@ export default function VendorDockPage() {
     <div className="min-h-screen bg-black p-6 text-white">
       <div className="mx-auto max-w-4xl space-y-6">
 
-        {/* header (Home button removed) */}
+        {/* header */}
         <header className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">Vendor Dock</h1>
           <button
@@ -88,25 +87,27 @@ export default function VendorDockPage() {
         </section>
       </div>
 
-      {/* modal: add-agent form */}
+      {/* modal: add-agent form (wrapped in .dark for green/gray labels) */}
       {showForm && account && (
-        <VendorDockForm
-          email=""
-          onClose={() => setShowForm(false)}
-          onConnectWallet={async () => {
-            const me = await fetch('/api/me', { cache: 'no-store' }).then(r => r.json());
-            return me?.account || '';
-          }}
-          onSubmit={async (form) => {
-            await fetch('/api/agents', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(form),
-            });
-            setShowForm(false);
-            loadAgents(account);
-          }}
-        />
+        <div className="dark">
+          <VendorDockForm
+            email=""
+            onClose={() => setShowForm(false)}
+            onConnectWallet={async () => {
+              const me = await fetch('/api/me', { cache: 'no-store' }).then(r => r.json());
+              return me?.account || '';
+            }}
+            onSubmit={async (form) => {
+              await fetch('/api/agents', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(form),
+              });
+              setShowForm(false);
+              loadAgents(account);
+            }}
+          />
+        </div>
       )}
     </div>
   );
