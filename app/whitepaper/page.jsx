@@ -72,7 +72,7 @@ export default function WhitepaperPage() {
       <h2>What’s New in v1.2</h2>
       <ul>
         <li>Aligned to <strong>VC 2.0 (W3C Recommendation, May 2025)</strong> for proof packaging.</li>
-        <li>Explicit wallet flows with Xumm deep links for sign-in and tx signing.</li>
+        <li>Explicit wallet flows with <strong>Xaman</strong> deep links for sign-in and tx signing.</li>
         <li>Clearer MVP vs. Phase-2 split (Hooks, dispute integrations are optional modules).</li>
       </ul>
 
@@ -99,7 +99,7 @@ export default function WhitepaperPage() {
       <h2>3. How It Works (MVP)</h2>
       <ol>
         <li>
-          <strong>Connect wallet</strong> (Xumm sign-in) → app stores the XRPL account for session.
+          <strong>Connect wallet</strong> (<strong>Xaman</strong> sign-in) → app stores the XRPL account for session.
         </li>
         <li>
           <strong>Post a job</strong> (type, scope, proof format, max hours).
@@ -181,7 +181,7 @@ export default function WhitepaperPage() {
       {/* UX & WALLET */}
       <h2>6. UX & Wallet Integration</h2>
       <p>
-        The app is a Next.js PWA with a wallet-first UX. We create Xumm payloads on the server and
+        The app is a Next.js PWA with a wallet-first UX. We create <strong>Xaman</strong> payloads on the server and
         deep-link users to sign: SignIn → <code>SignerListSet</code> → <code>EscrowCreate</code> →
         (optional) <code>EscrowFinish</code>. No seed custody, no copy-paste JSON.
       </p>
@@ -191,7 +191,7 @@ export default function WhitepaperPage() {
           href="https://docs.xumm.dev/concepts/payloads-sign-requests"
           target="_blank" rel="noopener" className="text-matrix-green hover:underline"
         >
-          Xumm payload concepts
+          Xaman payload concepts
         </a>{' '}
         ·{' '}
         <a
@@ -264,7 +264,7 @@ export default function WhitepaperPage() {
           <tr>
             <td>MVP</td>
             <td>
-              Save jobs; show matches; pick agent; Xumm flows for SignerListSet + Escrow; agent proof; user finish.
+              Save jobs; show matches; pick agent; <strong>Xaman</strong> flows for SignerListSet + Escrow; agent proof; user finish.
             </td>
           </tr>
           <tr>
@@ -287,7 +287,7 @@ export default function WhitepaperPage() {
       <ul>
         <li>Key cleanup: revoke delegates with an empty <code>SignerListSet</code> after each job.</li>
         <li>Escrow griefing: prefer short windows, staged milestones for larger work.</li>
-        <li>Wallet safety: surface clear intent & metadata in Xumm payloads.</li>
+        <li>Wallet safety: surface clear intent & metadata in <strong>Xaman</strong> payloads.</li>
       </ul>
 
       {/* CREDITS */}
@@ -305,7 +305,7 @@ export default function WhitepaperPage() {
           <a href="https://xrpl.org/docs/references/protocol/transactions/types/escrowfinish" target="_blank" rel="noopener" className="text-matrix-green hover:underline">Finish</a>
         </li>
         <li>
-          Xumm payloads —{' '}
+          <strong>Xaman</strong> payloads —{' '}
           <a href="https://docs.xumm.dev/concepts/payloads-sign-requests" target="_blank" rel="noopener" className="text-matrix-green hover:underline">Concepts</a>{' '}·{' '}
           <a href="https://xumm.readme.io/reference/post-payload" target="_blank" rel="noopener" className="text-matrix-green hover:underline">API</a>
         </li>
@@ -318,10 +318,6 @@ export default function WhitepaperPage() {
           <a href="https://www.npmjs.com/package/macaroons.js/v/0.3.9" target="_blank" rel="noopener" className="text-matrix-green hover:underline">macaroons.js</a>
         </li>
       </ul>
-
-      <p className="mt-10 text-sm opacity-80">
-        Built in the open. Matrix-green by choice. Human-made on purpose.
-      </p>
     </article>
   );
 }
