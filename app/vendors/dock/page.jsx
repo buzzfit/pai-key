@@ -2,15 +2,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter }            from 'next/navigation';
-import VendorDockForm           from '../../../components/VendorDockForm';
-import AgentCard                from '../../../components/AgentCard';
+import { useRouter } from 'next/navigation';
+import VendorDockForm from '../../../components/VendorDockForm';
+import AgentCard from '../../../components/AgentCard';
 import { connectXummInteractive } from '../../../lib/xummConnectClient';
 
 export default function VendorDockPage() {
-  const router                  = useRouter();
-  const [account, setAccount]   = useState(null);
-  const [agents,  setAgents]    = useState([]);
+  const router = useRouter();
+  const [account, setAccount] = useState(null);
+  const [agents, setAgents] = useState([]);
   const [showForm, setShowForm] = useState(false);
 
   // Try to read wallet cookie — DO NOT redirect if missing
@@ -38,7 +38,7 @@ export default function VendorDockPage() {
   // Remove one agent (stay on page even if last one is removed)
   const deleteAgent = async (id) => {
     await fetch(`/api/agents/${id}`, { method: 'DELETE' });
-    await loadAgents(account); // no logout, no redirect
+    await loadAgents(account);
   };
 
   return (
@@ -109,7 +109,7 @@ export default function VendorDockPage() {
                 hourlyRate={a.hourlyRate}
                 minHours={a.minHours}
                 capabilities={a.capabilities}
-                typeBadge={a.agentType}        {/* ← show Agent Type on card */}
+                typeBadge={a.agentType}
                 onRemove={() => deleteAgent(a.id)}
               />
             ))}
