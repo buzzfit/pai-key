@@ -1,4 +1,3 @@
-// components/AgentCard.jsx
 'use client';
 
 export default function AgentCard({
@@ -9,8 +8,9 @@ export default function AgentCard({
   description,
   hourlyRate,
   minHours,
-  capabilities = [], // optional: string or array
-  onRemove,          // expects to be called with id
+  capabilities = [],   // string or array is OK
+  agentType,           // 👈 NEW: pass-through from API record (e.g., "code_gen")
+  onRemove,            // expects to be called with id
 }) {
   // Normalize capabilities to an array of strings
   const caps = Array.isArray(capabilities)
@@ -19,6 +19,13 @@ export default function AgentCard({
         .split(',')
         .map(s => s.trim())
         .filter(Boolean);
+
+  // Pretty label for the badge (e.g., "code_gen" -> "Code Gen")
+  const typeLabel = agentType
+    ? agentType
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, c => c.toUpperCase())
+    : 'Agent';
 
   return (
     <div
@@ -35,6 +42,13 @@ export default function AgentCard({
             'radial-gradient(600px 120px at 80% 0%, rgba(30,255,140,0.12), transparent 40%)',
         }}
       />
+
+      {/* agent type badge (first thing on the card) */}
+      <div className="mb-2">
+        <span className="rounded-md border border-matrix-green/40 bg-black/40 px-2.5 py-1 font-mono text-[11px] uppercase tracking-wider text-matrix-green/90">
+          {typeLabel}
+        </span>
+      </div>
 
       {/* wallet */}
       <div className="mb-2 break-all font-mono text-xs text-matrix-green/90">
