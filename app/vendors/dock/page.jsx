@@ -13,7 +13,7 @@ export default function VendorDockPage() {
   const [agents, setAgents] = useState([]);
   const [showForm, setShowForm] = useState(false);
 
-  // Try to read wallet cookie — DO NOT redirect if missing
+  // 1) Try to read wallet cookie — DO NOT redirect if missing
   useEffect(() => {
     (async () => {
       try {
@@ -25,7 +25,7 @@ export default function VendorDockPage() {
     })();
   }, []);
 
-  // Fetch / refresh agents (noop if no wallet yet)
+  // 2) Fetch / refresh agents (noop if no wallet yet)
   const loadAgents = async (acct) => {
     if (!acct) { setAgents([]); return 0; }
     const data = await fetch(`/api/agents?account=${acct}`, { cache: 'no-store' }).then(r => r.json());
@@ -35,7 +35,7 @@ export default function VendorDockPage() {
   };
   useEffect(() => { loadAgents(account); }, [account]);
 
-  // Remove one agent (stay on page even if last one is removed)
+  // 3) Remove one agent (stay on page even if last one is removed)
   const deleteAgent = async (id) => {
     await fetch(`/api/agents/${id}`, { method: 'DELETE' });
     await loadAgents(account);
@@ -109,7 +109,7 @@ export default function VendorDockPage() {
                 hourlyRate={a.hourlyRate}
                 minHours={a.minHours}
                 capabilities={a.capabilities}
-                typeBadge={a.agentType}
+                agentType={a.agentType}      {/* ✅ pass the type so it renders on the badge */}
                 onRemove={() => deleteAgent(a.id)}
               />
             ))}
@@ -124,10 +124,12 @@ export default function VendorDockPage() {
           onClose={() => setShowForm(false)}
           onConnectWallet={async () => {
             try {
+              // reuse cookie if already connected
               const me = await fetch('/api/me', { cache: 'no-store' }).then(r => r.json());
               if (me?.account) return me.account;
+              // otherwise run interactive connect
               const acct = await connectXummInteractive();
-              setAccount(acct);
+              setAccount(acct);               // update local state so cards load
               return acct;
             } catch (e) {
               console.error(e);
