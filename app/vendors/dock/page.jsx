@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useRouter }            from 'next/navigation';
 import VendorDockForm           from '../../../components/VendorDockForm';
 import AgentCard                from '../../../components/AgentCard';
+import { connectXummInteractive } from '../../../lib/xummConnectClient';
 
 export default function VendorDockPage() {
   const router                  = useRouter();
@@ -12,27 +13,31 @@ export default function VendorDockPage() {
   const [agents,  setAgents]    = useState([]);
   const [showForm, setShowForm] = useState(false);
 
-  // 1) Ensure vendor is authenticated (cookie)
+  // 1) Try to read wallet cookie — DO NOT redirect if missing
   useEffect(() => {
     (async () => {
-      const me = await fetch('/api/me', { cache: 'no-store' })
-        .then(r => r.json())
-        .catch(() => null);
-      if (!me?.account) return router.push('/vendors');
-      setAccount(me.account);
+      try {
+        const me = await fetch('/api/me', { cache: 'no-store' })
+          .then(r => r.json());
+        setAccount(me?.account || null);
+      } catch {
+        setAccount(null);
+      }
     })();
-  }, [router]);
+  }, []);
 
-  // 2) Fetch / refresh agents
+  // 2) Fetch / refresh agents (noop if no wallet yet)
   const loadAgents = async (acct) => {
+    if (!acct) { setAgents([]); return 0; }
     const data = await fetch(`/api/agents?account=${acct}`, { cache: 'no-store' })
       .then(r => r.json());
-    setAgents(data.agents || []);
-    return (data.agents || []).length;
+    const list = data.agents || [];
+    setAgents(list);
+    return list.length;
   };
-  useEffect(() => { if (account) loadAgents(account); }, [account]);
+  useEffect(() => { loadAgents(account); }, [account]);
 
-  // 3) Disconnect a single agent (auto-logout when last one removed)
+  // 3) Disconnect a single agent; if last one, logout + bounce to signup
   const deleteAgent = async (id) => {
     await fetch(`/api/agents/${id}`, { method: 'DELETE' });
     const remaining = await loadAgents(account);
@@ -47,7 +52,6 @@ export default function VendorDockPage() {
     <div
       className="min-h-screen text-white"
       style={{
-        // subtle “grid bay” vibe without extra CSS
         background:
           'radial-gradient(1200px 600px at 70% -20%, rgba(30,255,140,0.08), transparent 60%), ' +
           'radial-gradient(900px 500px at 10% 120%, rgba(30,255,140,0.06), transparent 60%), ' +
@@ -82,15 +86,24 @@ export default function VendorDockPage() {
         {/* Status / count */}
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-sm font-medium text-matrix-green/80">
-            {agents.length === 0 ? 'No agents docked' : `${agents.length} agent${agents.length > 1 ? 's' : ''} docked`}
+            {agents.length === 0
+              ? 'No agents docked'
+              : `${agents.length} agent${agents.length > 1 ? 's' : ''} docked`}
           </h2>
         </div>
 
-        {/* Cards grid — roomy + responsive */}
+        {/* Cards grid */}
         {agents.length === 0 ? (
-          <div className="rounded-2xl border border-matrix-green/20 bg-gray-900/40 p-6 text-gray-300">
-            No agent yet — click <span className="text-matrix-green">“Add Agent”</span>.
-          </div>
+          <>
+            {!account && (
+              <p className="mb-3 text-sm text-gray-400">
+                Connect your wallet from the <span className="text-matrix-green">Add Agent</span> modal to start docking agents.
+              </p>
+            )}
+            <div className="rounded-2xl border border-matrix-green/20 bg-gray-900/40 p-6 text-gray-300">
+              No agent yet — click <span className="text-matrix-green">“Add Agent”</span>.
+            </div>
+          </>
         ) : (
           <ul className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
             {agents.map(a => (
@@ -111,23 +124,46 @@ export default function VendorDockPage() {
         )}
       </div>
 
-      {/* Modal: add another agent */}
-      {showForm && account && (
+      {/* Modal: add agent — allow opening even if not connected */}
+      {showForm && (
         <VendorDockForm
           email=""
           onClose={() => setShowForm(false)}
           onConnectWallet={async () => {
-            const me = await fetch('/api/me', { cache: 'no-store' }).then(r => r.json());
-            return me?.account || '';
+            try {
+              // reuse cookie if already connected
+              const me = await fetch('/api/me', { cache: 'no-store' }).then(r => r.json());
+              if (me?.account) return me.account;
+
+              // otherwise run interactive connect
+              const acct = await connectXummInteractive();
+              setAccount(acct);               // update local state so cards load
+              return acct;
+            } catch (e) {
+              console.error(e);
+              return '';
+            }
           }}
           onSubmit={async (form) => {
+            // ensure we have a wallet before saving
+            let acct = account;
+            if (!acct) {
+              const me = await fetch('/api/me', { cache: 'no-store' }).then(r => r.json()).catch(() => null);
+              acct = me?.account || null;
+            }
+            if (!acct) {
+              alert('Please connect your wallet first.');
+              return;
+            }
+
             await fetch('/api/agents', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(form),
             });
+
             setShowForm(false);
-            loadAgents(account);
+            loadAgents(acct);
           }}
         />
       )}
