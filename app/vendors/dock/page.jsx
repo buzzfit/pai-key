@@ -13,12 +13,11 @@ export default function VendorDockPage() {
   const [agents,  setAgents]    = useState([]);
   const [showForm, setShowForm] = useState(false);
 
-  // 1) Try to read wallet cookie — DO NOT redirect if missing
+  // Try to read wallet cookie — DO NOT redirect if missing
   useEffect(() => {
     (async () => {
       try {
-        const me = await fetch('/api/me', { cache: 'no-store' })
-          .then(r => r.json());
+        const me = await fetch('/api/me', { cache: 'no-store' }).then(r => r.json());
         setAccount(me?.account || null);
       } catch {
         setAccount(null);
@@ -26,28 +25,22 @@ export default function VendorDockPage() {
     })();
   }, []);
 
-  // 2) Fetch / refresh agents (noop if no wallet yet)
+  // Fetch / refresh agents (noop if no wallet yet)
   const loadAgents = async (acct) => {
     if (!acct) { setAgents([]); return 0; }
-    const data = await fetch(`/api/agents?account=${acct}`, { cache: 'no-store' })
-      .then(r => r.json());
+    const data = await fetch(`/api/agents?account=${acct}`, { cache: 'no-store' }).then(r => r.json());
     const list = data.agents || [];
     setAgents(list);
     return list.length;
   };
   useEffect(() => { loadAgents(account); }, [account]);
 
-  // 3) Disconnect a single agent; if last one, logout + bounce to signup
+  // Remove one agent (stay on page even if last one is removed)
   const deleteAgent = async (id) => {
     await fetch(`/api/agents/${id}`, { method: 'DELETE' });
-    const remaining = await loadAgents(account);
-    if (remaining === 0) {
-      await fetch('/api/logout', { method: 'POST' });
-      router.push('/vendors');
-    }
+    await loadAgents(account); // no logout, no redirect
   };
 
-  // ───────────────────────── UI ─────────────────────────
   return (
     <div
       className="min-h-screen text-white"
@@ -83,7 +76,6 @@ export default function VendorDockPage() {
 
       {/* Dock bay */}
       <div className="mx-auto max-w-6xl px-6 pb-16 pt-8">
-        {/* Status / count */}
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-sm font-medium text-matrix-green/80">
             {agents.length === 0
@@ -117,6 +109,7 @@ export default function VendorDockPage() {
                 hourlyRate={a.hourlyRate}
                 minHours={a.minHours}
                 capabilities={a.capabilities}
+                typeBadge={a.agentType}        {/* ← show Agent Type on card */}
                 onRemove={() => deleteAgent(a.id)}
               />
             ))}
@@ -131,13 +124,10 @@ export default function VendorDockPage() {
           onClose={() => setShowForm(false)}
           onConnectWallet={async () => {
             try {
-              // reuse cookie if already connected
               const me = await fetch('/api/me', { cache: 'no-store' }).then(r => r.json());
               if (me?.account) return me.account;
-
-              // otherwise run interactive connect
               const acct = await connectXummInteractive();
-              setAccount(acct);               // update local state so cards load
+              setAccount(acct);
               return acct;
             } catch (e) {
               console.error(e);
@@ -145,16 +135,13 @@ export default function VendorDockPage() {
             }
           }}
           onSubmit={async (form) => {
-            // ensure we have a wallet before saving
+            // ensure wallet present
             let acct = account;
             if (!acct) {
               const me = await fetch('/api/me', { cache: 'no-store' }).then(r => r.json()).catch(() => null);
               acct = me?.account || null;
             }
-            if (!acct) {
-              alert('Please connect your wallet first.');
-              return;
-            }
+            if (!acct) { alert('Please connect your wallet first.'); return; }
 
             await fetch('/api/agents', {
               method: 'POST',
