@@ -5,7 +5,9 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import VendorDockForm from '../../../components/VendorDockForm';
 import AgentCard from '../../../components/AgentCard';
-import { connectXummInteractive } from '../../../lib/xummConnectClient';
+// Alias the existing helper so our code stays “Xaman”-only,
+// until the lib filename is renamed.
+import { connectXummInteractive as connectXamanInteractive } from '../../../lib/xummConnectClient';
 
 export default function VendorDockPage() {
   const router = useRouter();
@@ -13,7 +15,21 @@ export default function VendorDockPage() {
   const [agents, setAgents] = useState([]);
   const [showForm, setShowForm] = useState(false);
 
-  // 1) Try to read wallet cookie — DO NOT redirect if missing
+  // Auto-logout when navigating away from this page (clears cookie)
+  useEffect(() => {
+    return () => {
+      try {
+        if (navigator?.sendBeacon) {
+          const blob = new Blob([JSON.stringify({})], { type: 'application/json' });
+          navigator.sendBeacon('/api/logout', blob);
+        } else {
+          fetch('/api/logout', { method: 'POST', keepalive: true }).catch(() => {});
+        }
+      } catch {}
+    };
+  }, []);
+
+  // Try to read wallet cookie — DO NOT redirect if missing
   useEffect(() => {
     (async () => {
       try {
@@ -25,7 +41,7 @@ export default function VendorDockPage() {
     })();
   }, []);
 
-  // 2) Fetch / refresh agents (noop if no wallet yet)
+  // Fetch / refresh agents (noop if no wallet yet)
   const loadAgents = async (acct) => {
     if (!acct) { setAgents([]); return 0; }
     const data = await fetch(`/api/agents?account=${acct}`, { cache: 'no-store' }).then(r => r.json());
@@ -35,7 +51,7 @@ export default function VendorDockPage() {
   };
   useEffect(() => { loadAgents(account); }, [account]);
 
-  // 3) Remove one agent (stay on page even if last one is removed)
+  // Remove one agent (stay on page even if last one is removed)
   const deleteAgent = async (id) => {
     await fetch(`/api/agents/${id}`, { method: 'DELETE' });
     await loadAgents(account);
@@ -124,12 +140,10 @@ export default function VendorDockPage() {
           onClose={() => setShowForm(false)}
           onConnectWallet={async () => {
             try {
-              // reuse cookie if already connected
               const me = await fetch('/api/me', { cache: 'no-store' }).then(r => r.json());
               if (me?.account) return me.account;
-              // otherwise run interactive connect
-              const acct = await connectXummInteractive();
-              setAccount(acct); // update local state so cards load
+              const acct = await connectXamanInteractive();
+              setAccount(acct);
               return acct;
             } catch (e) {
               console.error(e);
