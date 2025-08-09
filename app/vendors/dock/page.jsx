@@ -109,7 +109,7 @@ export default function VendorDockPage() {
                 hourlyRate={a.hourlyRate}
                 minHours={a.minHours}
                 capabilities={a.capabilities}
-                agentType={a.agentType}      {/* ✅ pass the type so it renders on the badge */}
+                agentType={a.agentType}
                 onRemove={() => deleteAgent(a.id)}
               />
             ))}
@@ -129,7 +129,7 @@ export default function VendorDockPage() {
               if (me?.account) return me.account;
               // otherwise run interactive connect
               const acct = await connectXummInteractive();
-              setAccount(acct);               // update local state so cards load
+              setAccount(acct); // update local state so cards load
               return acct;
             } catch (e) {
               console.error(e);
