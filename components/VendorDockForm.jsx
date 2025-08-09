@@ -38,7 +38,7 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
     hourlyRate  : '',
     minHours    : '1',
     proof       : ['any'],
-    xrpAddr     : '' // ❗ starts empty; no cookie prefill
+    xrpAddr     : ''              // ← no longer auto-filled from cookie
   });
   const setField = (k, v) => setState(p => ({ ...p, [k]: v }));
 
