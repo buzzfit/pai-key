@@ -5,8 +5,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import VendorDockForm from '../../../components/VendorDockForm';
 import AgentCard from '../../../components/AgentCard';
-// Alias the existing helper so our code stays “Xaman”-only,
-// until the lib filename is renamed.
+// use Xaman naming via alias (we’ll rename the file later)
 import { connectXummInteractive as connectXamanInteractive } from '../../../lib/xummConnectClient';
 
 export default function VendorDockPage() {
@@ -15,9 +14,9 @@ export default function VendorDockPage() {
   const [agents, setAgents] = useState([]);
   const [showForm, setShowForm] = useState(false);
 
-  // Auto-logout when navigating away from this page (clears cookie)
+  // Extra-aggressive logout when leaving/hiding the page (Edge-friendly)
   useEffect(() => {
-    return () => {
+    const logout = () => {
       try {
         if (navigator?.sendBeacon) {
           const blob = new Blob([JSON.stringify({})], { type: 'application/json' });
@@ -26,6 +25,19 @@ export default function VendorDockPage() {
           fetch('/api/logout', { method: 'POST', keepalive: true }).catch(() => {});
         }
       } catch {}
+    };
+    const onHide = () => document.visibilityState === 'hidden' && logout();
+
+    window.addEventListener('pagehide', logout);
+    window.addEventListener('beforeunload', logout);
+    document.addEventListener('visibilitychange', onHide);
+
+    return () => {
+      window.removeEventListener('pagehide', logout);
+      window.removeEventListener('beforeunload', logout);
+      document.removeEventListener('visibilitychange', onHide);
+      // also logout on unmount
+      logout();
     };
   }, []);
 
@@ -51,7 +63,7 @@ export default function VendorDockPage() {
   };
   useEffect(() => { loadAgents(account); }, [account]);
 
-  // Remove one agent (stay on page even if last one is removed)
+  // Remove one agent
   const deleteAgent = async (id) => {
     await fetch(`/api/agents/${id}`, { method: 'DELETE' });
     await loadAgents(account);
@@ -133,15 +145,14 @@ export default function VendorDockPage() {
         )}
       </div>
 
-      {/* Modal: add agent — allow opening even if not connected */}
+      {/* Modal: add agent — always require interactive Xaman connect */}
       {showForm && (
         <VendorDockForm
           email=""
           onClose={() => setShowForm(false)}
           onConnectWallet={async () => {
             try {
-              const me = await fetch('/api/me', { cache: 'no-store' }).then(r => r.json());
-              if (me?.account) return me.account;
+              // Force an interactive connect every time
               const acct = await connectXamanInteractive();
               setAccount(acct);
               return acct;
@@ -151,22 +162,17 @@ export default function VendorDockPage() {
             }
           }}
           onSubmit={async (form) => {
-            // ensure wallet present
-            let acct = account;
-            if (!acct) {
-              const me = await fetch('/api/me', { cache: 'no-store' }).then(r => r.json()).catch(() => null);
-              acct = me?.account || null;
+            if (!account) {
+              alert('Please connect your wallet first.');
+              return;
             }
-            if (!acct) { alert('Please connect your wallet first.'); return; }
-
             await fetch('/api/agents', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(form),
             });
-
             setShowForm(false);
-            loadAgents(acct);
+            loadAgents(account);
           }}
         />
       )}
