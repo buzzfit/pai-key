@@ -1,7 +1,7 @@
 // components/VendorDockForm.jsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 /* ───────── Static lookup tables ───────── */
 const AGENT_TYPES = [
@@ -38,19 +38,9 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
     hourlyRate  : '',
     minHours    : '1',
     proof       : ['any'],
-    xrpAddr     : ''
+    xrpAddr     : '' // ❗ starts empty; no cookie prefill
   });
   const setField = (k, v) => setState(p => ({ ...p, [k]: v }));
-
-  /* Prefill XRPL account from secure cookie */
-  useEffect(() => {
-    (async () => {
-      try {
-        const me = await fetch('/api/me', { cache: 'no-store' }).then(r => r.json());
-        if (me?.account) setField('xrpAddr', me.account);
-      } catch {/* ignore */}
-    })();
-  }, []);
 
   /* derived flags */
   const allFilled = () =>
@@ -99,7 +89,6 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <form
         onSubmit={handleSubmit}
-        /* 🔹 new utility ensures all text (labels + inputs) is visible */
         className="relative max-h-[90vh] w-full max-w-xl space-y-4 overflow-y-auto
                    rounded-lg bg-white p-6 text-matrix-green dark:bg-gray-800"
       >
@@ -211,7 +200,7 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
           </div>
         </fieldset>
 
-        {/* Wallet button */}
+        {/* Wallet button (Xaman) */}
         <button
           type="button"
           onClick={async () => {
@@ -220,7 +209,7 @@ export default function VendorDockForm({ onSubmit, onClose, onConnectWallet }) {
           }}
           className="rounded bg-blue-600 px-3 py-2 text-white"
         >
-          {state.xrpAddr ? 'Wallet Connected' : 'Connect Xumm Wallet'}
+          {state.xrpAddr ? 'Wallet Connected' : 'Connect Xaman Wallet'}
         </button>
 
         {/* Actions */}
