@@ -14,34 +14,10 @@ export default function VendorDockPage() {
   const [agents, setAgents] = useState([]);
   const [showForm, setShowForm] = useState(false);
 
-  // Extra-aggressive logout when leaving/hiding the page (Edge-friendly)
-  useEffect(() => {
-    const logout = () => {
-      try {
-        if (navigator?.sendBeacon) {
-          const blob = new Blob([JSON.stringify({})], { type: 'application/json' });
-          navigator.sendBeacon('/api/logout', blob);
-        } else {
-          fetch('/api/logout', { method: 'POST', keepalive: true }).catch(() => {});
-        }
-      } catch {}
-    };
-    const onHide = () => document.visibilityState === 'hidden' && logout();
+  // 🧹 Remove the aggressive auto-logout on hide/unload.
+  // We’ll keep the cookie between reloads so the dock stays “live”.
 
-    window.addEventListener('pagehide', logout);
-    window.addEventListener('beforeunload', logout);
-    document.addEventListener('visibilitychange', onHide);
-
-    return () => {
-      window.removeEventListener('pagehide', logout);
-      window.removeEventListener('beforeunload', logout);
-      document.removeEventListener('visibilitychange', onHide);
-      // also logout on unmount
-      logout();
-    };
-  }, []);
-
-  // Try to read wallet cookie — DO NOT redirect if missing
+  // On mount, try to read wallet cookie — DO NOT redirect if missing
   useEffect(() => {
     (async () => {
       try {
@@ -56,17 +32,49 @@ export default function VendorDockPage() {
   // Fetch / refresh agents (noop if no wallet yet)
   const loadAgents = async (acct) => {
     if (!acct) { setAgents([]); return 0; }
-    const data = await fetch(`/api/agents?account=${acct}`, { cache: 'no-store' }).then(r => r.json());
-    const list = data.agents || [];
-    setAgents(list);
-    return list.length;
+    try {
+      const data = await fetch(`/api/agents?account=${acct}`, { cache: 'no-store' }).then(r => r.json());
+      const list = data.agents || [];
+      setAgents(list);
+      return list.length;
+    } catch {
+      setAgents([]);
+      return 0;
+    }
   };
   useEffect(() => { loadAgents(account); }, [account]);
 
-  // Remove one agent
+  // Remove one agent (owner-only; API enforces it)
   const deleteAgent = async (id) => {
-    await fetch(`/api/agents/${id}`, { method: 'DELETE' });
-    await loadAgents(account);
+    try {
+      const res = await fetch(`/api/agents/${id}`, { method: 'DELETE' });
+      if (res.status === 401) {
+        alert('Please reconnect your wallet to remove agents.');
+        return;
+      }
+      if (res.status === 403) {
+        alert('Only the agent’s owner wallet can disconnect it.');
+        return;
+      }
+      if (!res.ok) {
+        const e = await res.json().catch(() => null);
+        alert(e?.error || 'Failed to remove agent.');
+        return;
+      }
+      const count = await loadAgents(account);
+      if (count === 0) router.replace('/'); // redirect when last agent removed
+    } catch (e) {
+      console.error(e);
+      alert('Network error while removing agent.');
+    }
+  };
+
+  // Optional: explicit Sign out button
+  const signOut = async () => {
+    try { await fetch('/api/logout', { method: 'POST' }); } catch {}
+    setAccount(null);
+    setAgents([]);
+    router.replace('/');
   };
 
   return (
@@ -92,6 +100,14 @@ export default function VendorDockPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            {account && (
+              <button
+                onClick={signOut}
+                className="rounded-xl border border-matrix-green/30 px-3 py-2 text-matrix-green/90 hover:bg-black/30"
+              >
+                Sign out
+              </button>
+            )}
             <button
               onClick={() => setShowForm(true)}
               className="rounded-xl bg-matrix-green px-4 py-2 text-black shadow-lg shadow-matrix-green/20 transition hover:translate-y-[1px] hover:opacity-95"
@@ -154,7 +170,7 @@ export default function VendorDockPage() {
             try {
               // Force an interactive connect every time
               const acct = await connectXamanInteractive();
-              setAccount(acct);
+              setAccount(acct); // triggers loadAgents via effect
               return acct;
             } catch (e) {
               console.error(e);
