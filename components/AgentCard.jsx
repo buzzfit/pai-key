@@ -9,8 +9,8 @@ export default function AgentCard({
   hourlyRate,
   minHours,
   capabilities = [],   // string or array is OK
-  agentType,           // 👈 NEW: pass-through from API record (e.g., "code_gen")
-  onRemove,            // expects to be called with id
+  agentType,           // e.g., "code_gen"
+  onRemove,            // if provided, show Disconnect and call onRemove(id)
 }) {
   // Normalize capabilities to an array of strings
   const caps = Array.isArray(capabilities)
@@ -22,9 +22,7 @@ export default function AgentCard({
 
   // Pretty label for the badge (e.g., "code_gen" -> "Code Gen")
   const typeLabel = agentType
-    ? agentType
-        .replace(/_/g, ' ')
-        .replace(/\b\w/g, c => c.toUpperCase())
+    ? agentType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
     : 'Agent';
 
   return (
@@ -43,7 +41,7 @@ export default function AgentCard({
         }}
       />
 
-      {/* agent type badge (first thing on the card) */}
+      {/* agent type badge */}
       <div className="mb-2">
         <span className="rounded-md border border-matrix-green/40 bg-black/40 px-2.5 py-1 font-mono text-[11px] uppercase tracking-wider text-matrix-green/90">
           {typeLabel}
@@ -87,14 +85,16 @@ export default function AgentCard({
           <span className="text-gray-400">Min:</span> {minHours} h
         </div>
 
-        <button
-          onClick={() => onRemove?.(id)}
-          className="rounded-md border border-gray-600 bg-gray-800 px-3 py-1.5
-                     text-sm text-gray-100 transition
-                     hover:border-red-400 hover:bg-red-500/10 hover:text-red-300"
-        >
-          Disconnect
-        </button>
+        {onRemove && (
+          <button
+            onClick={() => onRemove(id)}
+            className="rounded-md border border-gray-600 bg-gray-800 px-3 py-1.5
+                       text-sm text-gray-100 transition
+                       hover:border-red-400 hover:bg-red-500/10 hover:text-red-300"
+          >
+            Disconnect
+          </button>
+        )}
       </div>
     </div>
   );
