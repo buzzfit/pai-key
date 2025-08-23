@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic';
 const ALL_SET   = 'autarkic:all';
 const BY_WALLET = (acct) => `autarkic:byWallet:${acct}`;
 const AGENT     = (id) => `autarkic:${id}`;
+const WALLET    = (acct) => `autarkic:wallet:${acct}`; // <— new
 
 export async function DELETE(_req, { params }) {
   const jar = await cookies();
@@ -24,6 +25,7 @@ export async function DELETE(_req, { params }) {
   await kv.del(AGENT(id));
   await kv.zrem(BY_WALLET(wallet), id);
   await kv.zrem(ALL_SET, id);
+  await kv.del(WALLET(wallet));                // <— clear the 1-per-wallet claim
 
   return NextResponse.json({ removed: 1 });
 }
