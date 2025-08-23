@@ -25,7 +25,7 @@ const PROOF_OPTIONS = [
   { value: 'url_sig',    label: 'URL + Signature' },
 ];
 
-export default function FreeAgentDockForm({ email, onSubmit, onClose, onConnectWallet }) {
+export default function FreeAgentDockForm({ onSubmit, onClose, onConnectWallet }) {
   const [state, setState] = useState({
     agentType: '', name: '', tagline: '', description: '', capabilities: '',
     hourlyRate: '', proof: ['any'], xrpAddr: ''
@@ -55,17 +55,22 @@ export default function FreeAgentDockForm({ email, onSubmit, onClose, onConnectW
     if (!canSubmit) return;
     const { agentType, name, tagline, description, capabilities, hourlyRate, proof, xrpAddr } = state;
     onSubmit({
-      email,
       agentType,
       name,
       tagline,
       description,
-      capabilities: capabilities.split(',').map(s => s.trim()).filter(Boolean),
-      hourlyRate: hourlyRate || '0',
+      capabilities: (capabilities || '')
+        .split(',').map(s => s.trim()).filter(Boolean),
+      hourlyRate: String(hourlyRate || '0'),
       proof,
       xrpAddr,
     });
   };
+
+  // UI classes for readable fields
+  const field     = "mt-1 w-full rounded border border-matrix-green/30 bg-white p-2 text-black placeholder-gray-500";
+  const selectCls = "mt-1 block w-full rounded border border-matrix-green/30 bg-white p-2 text-black";
+  const labelCls  = "text-matrix-green/90";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -84,25 +89,14 @@ export default function FreeAgentDockForm({ email, onSubmit, onClose, onConnectW
 
         <h2 className="text-xl font-semibold">Autarkic Agent Docking</h2>
 
-        {/* email */}
-        <label className="block">
-          <span className="text-matrix-green/90">Email</span>
-          <input
-            type="email"
-            value={email}
-            readOnly
-            className="mt-1 w-full rounded border border-matrix-green/30 bg-black/40 p-2 text-matrix-green/90"
-          />
-        </label>
-
         {/* agent type */}
         <label className="block">
-          <span className="text-matrix-green/90">Agent Type</span>
+          <span className={labelCls}>Agent Type</span>
           <select
             required
             value={state.agentType}
             onChange={e => setField('agentType', e.target.value)}
-            className="mt-1 block w-full rounded border border-matrix-green/30 bg-black/40 p-2 text-matrix-green"
+            className={selectCls}
           >
             {AGENT_TYPES.map(o => (
               <option key={o.value} value={o.value} disabled={!o.value}>{o.label}</option>
@@ -113,63 +107,63 @@ export default function FreeAgentDockForm({ email, onSubmit, onClose, onConnectW
         {/* name & tagline */}
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block">
-            <span className="text-matrix-green/90">Agent Name</span>
+            <span className={labelCls}>Agent Name</span>
             <input
               required
               value={state.name}
               onChange={e => setField('name', e.target.value)}
-              className="mt-1 w-full rounded border border-matrix-green/30 bg-black/40 p-2 text-matrix-green"
+              className={field}
             />
           </label>
           <label className="block">
-            <span className="text-matrix-green/90">Tagline</span>
+            <span className={labelCls}>Tagline</span>
             <input
               required
               maxLength={80}
               value={state.tagline}
               onChange={e => setField('tagline', e.target.value)}
-              className="mt-1 w-full rounded border border-matrix-green/30 bg-black/40 p-2 text-matrix-green"
+              className={field}
             />
           </label>
         </div>
 
         {/* description */}
         <label className="block">
-          <span className="text-matrix-green/90">Detailed Description</span>
+          <span className={labelCls}>Detailed Description</span>
           <textarea
             required
             rows={4}
             value={state.description}
             onChange={e => setField('description', e.target.value)}
-            className="mt-1 w-full rounded border border-matrix-green/30 bg-black/40 p-2 text-matrix-green"
+            className={field}
           />
         </label>
 
         {/* capabilities */}
         <label className="block">
-          <span className="text-matrix-green/90">Capabilities / keywords (comma-separated)</span>
+          <span className={labelCls}>Capabilities / keywords (comma-separated)</span>
           <input
             value={state.capabilities}
             onChange={e => setField('capabilities', e.target.value)}
-            className="mt-1 w-full rounded border border-matrix-green/30 bg-black/40 p-2 text-matrix-green"
+            className={field}
           />
         </label>
 
         {/* optional rate */}
         <label className="block">
-          <span className="text-matrix-green/90">Hourly Rate (XRP) – optional</span>
+          <span className={labelCls}>Hourly Rate (XRP) – optional</span>
           <input
             type="number"
             min="0" step="0.000001"
             value={state.hourlyRate}
             onChange={e => setField('hourlyRate', e.target.value)}
-            className="mt-1 w-full rounded border border-matrix-green/30 bg-black/40 p-2 text-matrix-green"
+            className={field}
           />
         </label>
 
         {/* proofs */}
         <fieldset>
-          <span className="text-matrix-green/90">Accepted Proof Types</span>
+          <span className={labelCls}>Accepted Proof Types</span>
           <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
             {PROOF_OPTIONS.map(o => (
               <label key={o.value} className="flex items-center gap-2">
