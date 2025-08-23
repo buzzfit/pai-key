@@ -178,14 +178,14 @@ export default function FreeAgentDockForm({ onSubmit, onClose, onConnectWallet }
           </div>
         </fieldset>
 
-        {/* wallet */}
+        {/* wallet (Xaman blue) */}
         <button
           type="button"
           onClick={async () => {
             const addr = await (onConnectWallet?.() || '');
             if (addr) setField('xrpAddr', addr);
           }}
-          className="rounded bg-matrix-green px-3 py-2 font-medium text-black hover:opacity-90"
+          className="rounded bg-blue-600 px-3 py-2 font-medium text-white hover:bg-blue-700"
         >
           {state.xrpAddr ? 'Wallet Connected' : 'Connect Xaman Wallet'}
         </button>
