@@ -32,9 +32,9 @@ export default function FreeAgentsPage() {
           body: JSON.stringify({ role: 'free', email: emailLocal }),
         });
 
-        // ② open dock form
+        // ② redirect to dock page instead of opening the form
         setCapturedEmail(emailLocal);
-        setShowForm(true);
+        router.push('/free-agents/dock');
       } catch (e) {
         console.error(e);
         setError('E-mail failed – please try again.');
