@@ -78,7 +78,8 @@ export default function HireLobbyPage() {
   }, [items, q, scope]);
 
   return (
-    <div className="min-h-screen bg-black text-white p-6"
+    <div
+      className="min-h-screen bg-black text-white p-6"
       style={{
         background:
           'radial-gradient(1200px 600px at 70% -20%, rgba(30,255,140,0.08), transparent 60%), ' +
@@ -103,7 +104,7 @@ export default function HireLobbyPage() {
           <h2 className="text-lg font-semibold">Wallet</h2>
           <p className="mt-2 break-all text-matrix-green">{account || '—'}</p>
 
-          <div className="mt-4 flex gap-3">
+        <div className="mt-4 flex gap-3">
             <button
               onClick={async () => {
                 await fetch('/api/logout', { method: 'POST' });
@@ -168,6 +169,7 @@ export default function HireLobbyPage() {
                   minHours={a.minHours}
                   capabilities={a.capabilities}
                   agentType={a.agentType}
+                  origin={a._origin}   // ← badge: Vendor | Autarkic
                   readonly
                 />
               ))}
