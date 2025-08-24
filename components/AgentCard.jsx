@@ -1,3 +1,4 @@
+// components/AgentCard.jsx
 'use client';
 
 export default function AgentCard({
@@ -8,9 +9,11 @@ export default function AgentCard({
   description,
   hourlyRate,
   minHours,
-  capabilities = [],   // string or array is OK
-  agentType,           // e.g., "code_gen"
-  onRemove,            // if provided, show Disconnect and call onRemove(id)
+  capabilities = [],     // string or array is OK
+  agentType,             // e.g., "code_gen"
+  onRemove,              // expects to be called with id
+  readonly = false,      // when true, hide Disconnect button
+  origin,                // 'vendor' | 'autarkic' (optional, for badges)
 }) {
   // Normalize capabilities to an array of strings
   const caps = Array.isArray(capabilities)
@@ -24,6 +27,14 @@ export default function AgentCard({
   const typeLabel = agentType
     ? agentType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
     : 'Agent';
+
+  // Source badge style
+  const sourceBadge =
+    origin === 'vendor'
+      ? 'Vendor'
+      : origin === 'autarkic'
+      ? 'Autarkic'
+      : null;
 
   return (
     <div
@@ -41,11 +52,17 @@ export default function AgentCard({
         }}
       />
 
-      {/* agent type badge */}
-      <div className="mb-2">
+      {/* badges row */}
+      <div className="mb-2 flex items-center gap-2">
         <span className="rounded-md border border-matrix-green/40 bg-black/40 px-2.5 py-1 font-mono text-[11px] uppercase tracking-wider text-matrix-green/90">
           {typeLabel}
         </span>
+
+        {sourceBadge && (
+          <span className="rounded-md border border-matrix-green/30 bg-black/30 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wide text-matrix-green/80">
+            {sourceBadge}
+          </span>
+        )}
       </div>
 
       {/* wallet */}
@@ -85,9 +102,9 @@ export default function AgentCard({
           <span className="text-gray-400">Min:</span> {minHours} h
         </div>
 
-        {onRemove && (
+        {!readonly && (
           <button
-            onClick={() => onRemove(id)}
+            onClick={() => onRemove?.(id)}
             className="rounded-md border border-gray-600 bg-gray-800 px-3 py-1.5
                        text-sm text-gray-100 transition
                        hover:border-red-400 hover:bg-red-500/10 hover:text-red-300"
