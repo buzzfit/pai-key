@@ -1,9 +1,14 @@
-// app/api/agents/route.js
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { kv } from '@vercel/kv';
+import { createClient } from '@vercel/kv';
 
 export const dynamic = 'force-dynamic'; // don't cache this handler
+
+// Initialize the KV client using the PAIKEY-prefixed variables
+const kv = createClient({
+  url: process.env.PAIKEY_KV_REST_API_URL,
+  token: process.env.PAIKEY_KV_REST_API_TOKEN,
+});
 
 // Keys
 const ALL_SET   = 'agents:all';                          // zset of all agent IDs
@@ -45,7 +50,7 @@ export async function POST(request) {
   const body = await request.json().catch(() => null);
   if (!body) return NextResponse.json({ error: 'Bad JSON' }, { status: 400 });
 
-  const jar = await cookies(); // next/headers cookies() (route handlers) is async. :contentReference[oaicite:1]{index=1}
+  const jar = await cookies(); // next/headers cookies() (route handlers) is async.
   const vendorAccount = jar.get('xummAccount')?.value;
   if (!vendorAccount) return NextResponse.json({ error:'Not authenticated' }, { status:401 });
 
