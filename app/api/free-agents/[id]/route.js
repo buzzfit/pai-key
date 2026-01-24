@@ -1,9 +1,14 @@
-// app/api/free-agents/[id]/route.js
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { kv } from '@vercel/kv';
+import { createClient } from '@vercel/kv';
 
 export const dynamic = 'force-dynamic';
+
+// Initialize the KV client using the PAIKEY-prefixed variables
+const kv = createClient({
+  url: process.env.PAIKEY_KV_REST_API_URL,
+  token: process.env.PAIKEY_KV_REST_API_TOKEN,
+});
 
 const ALL_SET   = 'autarkic:all';
 const BY_WALLET = (acct) => `autarkic:byWallet:${acct}`;
