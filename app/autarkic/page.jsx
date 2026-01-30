@@ -1,4 +1,4 @@
-// app/free-agents/page.jsx
+// app/free-agents/page.jsx (renamed to autarkic)
 'use client';
 
 import { useState } from 'react';
@@ -25,11 +25,11 @@ export default function FreeAgentsPage() {
       setSending(true); setError('');
 
       try {
-        // ① send admin + welcome emails
+        // ① send admin + welcome emails with proper autarkic role
         await fetch('/api/email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ role: 'free', email: emailLocal }),
+          body: JSON.stringify({ role: 'autarkic', email: emailLocal }),
         });
 
         // ② redirect to dock page instead of opening the form
