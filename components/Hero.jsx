@@ -1,4 +1,3 @@
-// components/Hero.jsx
 'use client';
 
 import Image from 'next/image';
@@ -6,7 +5,7 @@ import Image from 'next/image';
 export default function Hero({ onGetStarted }) {
   return (
     <section className="relative flex flex-col items-center justify-center h-screen bg-black text-white overflow-hidden">
-      {/* 1) Left logo */ }
+      {/* 1) Left logo */}
       <div className="absolute top-[-1.5%] left-[19%] sm:top-[23.5%] sm:left-[10.5%]">
         <Image
           src="/logo.png"
@@ -17,7 +16,7 @@ export default function Hero({ onGetStarted }) {
         />
       </div>
 
-      {/* 2) Right banner artwork */ }
+      {/* 2) Right banner artwork */}
       <div className="hidden sm:block absolute top-1/2 right-8 -translate-y-1/2">
         <Image
           src="/matrix-right-logo.jpg"
@@ -28,7 +27,7 @@ export default function Hero({ onGetStarted }) {
         />
       </div>
 
-      {/* 3) Headline & copy */ }
+      {/* 3) Headline & copy */}
       <div className="relative z-10 px-4 sm:px-0 sm:-translate-x-[12%] text-center">
         <h1 className="mb-4 text-4xl font-extrabold text-matrix-green">
           Hire AI Agents
@@ -41,7 +40,7 @@ export default function Hero({ onGetStarted }) {
           deliverables—all on the XRP Ledger.
         </p>
 
-        {/* 4) Action buttons */ }
+        {/* 4) Action buttons */}
         <div className="flex flex-col justify-center gap-6 sm:flex-row">
           {/* Left stack */}
           <div className="flex flex-col space-y-2">
