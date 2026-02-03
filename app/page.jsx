@@ -1,9 +1,9 @@
-// app/page.jsx   (“Hire” entry point)
 'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Hero from '../components/Hero';
+import OpenClawBanner from '../components/OpenClawBanner';
 import Features from '../components/Features';
 import EmailSignupForm from '../components/EmailSignupForm';
 import JobTemplateForm from '../components/JobTemplateForm';
@@ -59,7 +59,10 @@ export default function Home() {
         />
       )}
 
-      <Hero      onGetStarted={handleOpenSignup} />
+              {/* OpenClaw promotion banner */}
+      <OpenClawBanner />
+
+      <Hero onGetStarted={handleOpenSignup} />
       <Features />
     </>
   );
