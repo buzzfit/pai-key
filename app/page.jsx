@@ -15,7 +15,7 @@ export default function Home() {
   const [showSignup, setShowSignup] = useState(false);
   const [showForm,   setShowForm]   = useState(false);
 
-  /* ───── e-mail modal ───── */
+  /* ───── e‑mail modal ───── */
   const handleOpenSignup  = () => setShowSignup(true);
   const handleCloseSignup = () => setShowSignup(false);
 
@@ -49,7 +49,7 @@ export default function Home() {
           onConnectWallet={async () => {
             try {
               const acct = await connectXummInteractive();
-              return acct;          // shows “Wallet Connected”
+              return acct; // shows “Wallet Connected”
             } catch (err) {
               console.error(err);
               alert('Wallet connect failed or timed out.');
@@ -59,7 +59,7 @@ export default function Home() {
         />
       )}
 
-              {/* OpenClaw promotion banner */}
+      {/* OpenClaw promotion banner */}
       <OpenClawBanner />
 
       <Hero onGetStarted={handleOpenSignup} />
