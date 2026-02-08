@@ -69,37 +69,46 @@ body {
 }
 
 /* ─────────────────────────────────────────────
-   Matrix flicker for main content
+   Matrix interference system (main content)
    ───────────────────────────────────────────── */
-@keyframes matrix-flicker {
-  0% {
-    filter: brightness(1) contrast(1);
-    transform: translateX(0);
-  }
-  20% {
-    filter: brightness(1.03) contrast(1.05);
-  }
-  40% {
-    transform: translateX(-0.3px);
-  }
-  60% {
-    filter: brightness(0.98) contrast(1.02);
-    transform: translateX(0.3px);
-  }
-  80% {
-    filter: brightness(1.01) contrast(1);
-  }
-  100% {
-    filter: brightness(1) contrast(1);
-    transform: translateX(0);
-  }
+
+/* Camera shake burst */
+@keyframes matrix-shake {
+  0% { transform: translate(0, 0); }
+  10% { transform: translate(-1px, 0.5px); }
+  20% { transform: translate(1px, -0.5px); }
+  30% { transform: translate(-0.5px, 1px); }
+  40% { transform: translate(0.5px, -1px); }
+  50% { transform: translate(0, 0); }
+  100% { transform: translate(0, 0); }
 }
 
+/* Horizontal signal tear */
+@keyframes matrix-tear {
+  0%, 94%, 100% { transform: translateX(0); }
+  95% { transform: translateX(-6px); }
+  96% { transform: translateX(6px); }
+  97% { transform: translateX(-3px); }
+  98% { transform: translateX(3px); }
+}
+
+/* Static noise flash */
+@keyframes matrix-static {
+  0%, 96%, 100% { opacity: 0; }
+  97% { opacity: 0.15; }
+  98% { opacity: 0.35; }
+  99% { opacity: 0.1; }
+}
+
+/* Apply interference bursts */
 .matrix-flicker {
-  animation: matrix-flicker 6.5s infinite steps(1);
+  position: relative;
+  animation:
+    matrix-shake 0.25s steps(1) infinite 7s,
+    matrix-tear 0.3s steps(1) infinite 11s;
 }
 
-/* Optional scanline pulse over main content */
+/* Static overlay layer */
 .matrix-flicker::after {
   content: '';
   pointer-events: none;
@@ -107,12 +116,11 @@ body {
   inset: 0;
   background: repeating-linear-gradient(
     to bottom,
-    rgba(0, 255, 65, 0.04),
-    rgba(0, 255, 65, 0.04) 1px,
+    rgba(0, 255, 65, 0.08),
+    rgba(0, 255, 65, 0.08) 1px,
     transparent 1px,
-    transparent 4px
+    transparent 2px
   );
-  opacity: 0.25;
-  animation: scanline-drift 12s linear infinite;
   mix-blend-mode: overlay;
+  animation: matrix-static 13s infinite;
 }
