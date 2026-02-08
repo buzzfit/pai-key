@@ -6,7 +6,7 @@ body {
   @apply bg-matrix-dark text-matrix-green;
 }
 
-/* Underline all links by default for better visibility */
+/* Underline all links by default */
 @layer base {
   a {
     @apply underline;
@@ -14,18 +14,22 @@ body {
 }
 
 /* ─────────────────────────────────────────────
-   Ticker / marquee animation
+   Unified ticker animation (left → right)
    ───────────────────────────────────────────── */
-@keyframes ticker-left {
+@keyframes ticker-right {
   0% {
-    transform: translateX(100%);
+    transform: translateX(-100%);
   }
   100% {
-    transform: translateX(-100%);
+    transform: translateX(100%);
   }
 }
 
-.ticker-move {
-  animation: ticker-left 18s linear infinite;
+.ticker-track {
+  animation: ticker-right 22s linear infinite;
   white-space: nowrap;
+}
+
+.ticker-container:hover .ticker-track {
+  animation-play-state: paused;
 }
