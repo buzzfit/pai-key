@@ -12,3 +12,20 @@ body {
     @apply underline;
   }
 }
+
+/* ─────────────────────────────────────────────
+   Ticker / marquee animation
+   ───────────────────────────────────────────── */
+@keyframes ticker-left {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.ticker-move {
+  animation: ticker-left 18s linear infinite;
+  white-space: nowrap;
+}
