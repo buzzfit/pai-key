@@ -41,7 +41,7 @@ body {
 }
 
 /* ─────────────────────────────────────────────
-   Optional Matrix scanline overlay
+   Ticker scanline overlay
    ───────────────────────────────────────────── */
 .ticker-scanlines::after {
   content: '';
@@ -66,4 +66,53 @@ body {
   to {
     background-position-y: 100%;
   }
+}
+
+/* ─────────────────────────────────────────────
+   Matrix flicker for main content
+   ───────────────────────────────────────────── */
+@keyframes matrix-flicker {
+  0% {
+    filter: brightness(1) contrast(1);
+    transform: translateX(0);
+  }
+  20% {
+    filter: brightness(1.03) contrast(1.05);
+  }
+  40% {
+    transform: translateX(-0.3px);
+  }
+  60% {
+    filter: brightness(0.98) contrast(1.02);
+    transform: translateX(0.3px);
+  }
+  80% {
+    filter: brightness(1.01) contrast(1);
+  }
+  100% {
+    filter: brightness(1) contrast(1);
+    transform: translateX(0);
+  }
+}
+
+.matrix-flicker {
+  animation: matrix-flicker 6.5s infinite steps(1);
+}
+
+/* Optional scanline pulse over main content */
+.matrix-flicker::after {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 255, 65, 0.04),
+    rgba(0, 255, 65, 0.04) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+  opacity: 0.25;
+  animation: scanline-drift 12s linear infinite;
+  mix-blend-mode: overlay;
 }
