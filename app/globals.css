@@ -41,7 +41,7 @@ body {
 }
 
 /* ─────────────────────────────────────────────
-   Ticker scanline overlay (subtle)
+   Ticker scanline overlay (still subtle)
    ───────────────────────────────────────────── */
 .ticker-scanlines::after {
   content: '';
@@ -50,12 +50,12 @@ body {
   inset: 0;
   background: repeating-linear-gradient(
     to bottom,
-    rgba(0, 255, 65, 0.05),
-    rgba(0, 255, 65, 0.05) 1px,
+    rgba(0, 255, 65, 0.06),
+    rgba(0, 255, 65, 0.06) 1px,
     transparent 1px,
     transparent 4px
   );
-  animation: scanline-drift 10s linear infinite;
+  animation: scanline-drift 9s linear infinite;
   mix-blend-mode: overlay;
 }
 
@@ -69,37 +69,37 @@ body {
 }
 
 /* ─────────────────────────────────────────────
-   Matrix phosphor-lock pulse
-   (unpredictable timing, no motion)
+   Matrix phosphor-lock pulse (elevated presence)
    ───────────────────────────────────────────── */
 
-/* Core pulse shape */
+/* Core pulse shape — SAFE but visible */
 @keyframes matrix-pulse {
-  0%, 96%, 100% {
+  0%, 92%, 100% {
     filter: none;
   }
-  97% {
+  93% {
     filter:
-      contrast(1.15)
-      saturate(1.25)
-      drop-shadow(0 0 0.6px rgba(0, 255, 65, 0.35));
+      contrast(1.18)
+      saturate(1.35)
+      drop-shadow(0 0 0.9px rgba(0, 255, 65, 0.45));
   }
-  98% {
+  95% {
     filter:
-      contrast(1.06)
-      saturate(1.1)
-      drop-shadow(0 0 0.3px rgba(0, 255, 65, 0.2));
+      contrast(1.1)
+      saturate(1.2)
+      drop-shadow(0 0 0.5px rgba(0, 255, 65, 0.3));
   }
 }
 
 /*
-  We layer THREE pulse timelines.
-  Their interaction creates perceived randomness:
-  ~5s, ~20s, ~4s, ~15s, ~7s, ~24s, etc.
+  Four overlapping timelines:
+  frequent enough to feel alive,
+  irregular enough to avoid rhythm.
 */
 .matrix-flicker {
   animation:
-    matrix-pulse 5s infinite,
-    matrix-pulse 17s infinite 3s,
-    matrix-pulse 29s infinite 11s;
+    matrix-pulse 4.5s infinite,
+    matrix-pulse 9s infinite 1.7s,
+    matrix-pulse 14s infinite 5s,
+    matrix-pulse 21s infinite 11s;
 }
