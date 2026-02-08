@@ -1,3 +1,4 @@
+// components/NavBar.jsx
 import Link from 'next/link';
 
 export default function NavBar() {
@@ -10,8 +11,11 @@ export default function NavBar() {
       <div className="max-w-6xl mx-auto px-4 py-3 flex flex-col sm:flex-row items-center sm:justify-between gap-4">
 
         {/* Logo */}
-        <Link href="/" className="text-2xl font-extrabold tracking-wider text-matrix-green">
-          PAI-KEY<span className="opacity-60">.org</span>
+        <Link
+          href="/"
+          className="no-underline text-2xl font-extrabold tracking-wider text-matrix-green"
+        >
+          PAI-KEY<span className="text-base align-top">.org</span>
         </Link>
 
         {/* Navigation Links */}
@@ -30,7 +34,7 @@ export default function NavBar() {
   );
 }
 
-/* ---------- Nav item component (pure Tailwind) ---------- */
+/* ---------- Nav item component (unchanged) ---------- */
 
 function NavItem({ href, children, external = false }) {
   const baseClasses =
