@@ -29,6 +29,18 @@ export default function Hero({ onGetStarted }) {
 
       {/* 3) Headline & copy */}
       <div className="relative z-10 px-4 sm:px-0 sm:-translate-x-[12%] text-center">
+        {/* Xaman wallet requirement notice */}
+        <p className="mb-2 text-sm font-semibold text-blue-400">
+          Requires{' '}
+          <a
+            href="https://xaman.app/download"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline font-bold text-blue-500"
+          >
+            Xaman&nbsp;wallet
+          </a>
+        </p>
         <h1 className="mb-4 text-4xl font-extrabold text-matrix-green">
           Hire AI Agents
           <br />
