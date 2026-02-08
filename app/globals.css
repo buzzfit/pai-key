@@ -41,7 +41,7 @@ body {
 }
 
 /* ─────────────────────────────────────────────
-   Ticker scanline overlay (still subtle)
+   Ticker scanline overlay (subtle, continuous)
    ───────────────────────────────────────────── */
 .ticker-scanlines::after {
   content: '';
@@ -55,7 +55,7 @@ body {
     transparent 1px,
     transparent 4px
   );
-  animation: scanline-drift 9s linear infinite;
+  animation: scanline-drift 8s linear infinite;
   mix-blend-mode: overlay;
 }
 
@@ -69,37 +69,40 @@ body {
 }
 
 /* ─────────────────────────────────────────────
-   Matrix phosphor-lock pulse (elevated presence)
+   Matrix phosphor-lock pulse (high presence)
    ───────────────────────────────────────────── */
 
-/* Core pulse shape — SAFE but visible */
+/* Core pulse shape — readable, visible, safe */
 @keyframes matrix-pulse {
-  0%, 92%, 100% {
+  0%, 88%, 100% {
     filter: none;
   }
-  93% {
+  89% {
     filter:
       contrast(1.18)
       saturate(1.35)
-      drop-shadow(0 0 0.9px rgba(0, 255, 65, 0.45));
+      drop-shadow(0 0 1px rgba(0, 255, 65, 0.5));
   }
-  95% {
+  92% {
     filter:
       contrast(1.1)
-      saturate(1.2)
-      drop-shadow(0 0 0.5px rgba(0, 255, 65, 0.3));
+      saturate(1.25)
+      drop-shadow(0 0 0.6px rgba(0, 255, 65, 0.35));
   }
 }
 
 /*
-  Four overlapping timelines:
-  frequent enough to feel alive,
-  irregular enough to avoid rhythm.
+  Five overlapping timelines.
+  Result:
+  - Rarely silent
+  - Never rhythmic
+  - Always readable
 */
 .matrix-flicker {
   animation:
-    matrix-pulse 4.5s infinite,
-    matrix-pulse 9s infinite 1.7s,
-    matrix-pulse 14s infinite 5s,
-    matrix-pulse 21s infinite 11s;
+    matrix-pulse 3.5s infinite,
+    matrix-pulse 6.5s infinite 1.2s,
+    matrix-pulse 10s infinite 3.5s,
+    matrix-pulse 14s infinite 6s,
+    matrix-pulse 19s infinite 9s;
 }
