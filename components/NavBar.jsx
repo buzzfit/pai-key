@@ -1,4 +1,3 @@
-// components/NavBar.jsx
 import Link from 'next/link';
 
 export default function NavBar() {
@@ -15,7 +14,7 @@ export default function NavBar() {
           href="/"
           className="no-underline text-2xl font-extrabold tracking-wider text-matrix-green"
         >
-          PAI-KEY<span className="text-base align-top">.org</span>
+          PAI-KEY<span className="text-lg">.org</span>
         </Link>
 
         {/* Navigation Links */}
@@ -34,7 +33,7 @@ export default function NavBar() {
   );
 }
 
-/* ---------- Nav item component (unchanged) ---------- */
+/* ---------- Nav item component ---------- */
 
 function NavItem({ href, children, external = false }) {
   const baseClasses =
