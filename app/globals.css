@@ -14,22 +14,56 @@ body {
 }
 
 /* ─────────────────────────────────────────────
-   Unified ticker animation (left → right)
+   Seamless ticker animation (right → left)
    ───────────────────────────────────────────── */
-@keyframes ticker-right {
+@keyframes ticker-left {
   0% {
-    transform: translateX(-100%);
+    transform: translateX(0);
   }
   100% {
-    transform: translateX(100%);
+    transform: translateX(-50%);
   }
 }
 
+.ticker-container {
+  position: relative;
+  overflow: hidden;
+}
+
 .ticker-track {
-  animation: ticker-right 22s linear infinite;
-  white-space: nowrap;
+  display: flex;
+  width: max-content;
+  animation: ticker-left 36s linear infinite;
 }
 
 .ticker-container:hover .ticker-track {
   animation-play-state: paused;
+}
+
+/* ─────────────────────────────────────────────
+   Optional Matrix scanline overlay
+   ───────────────────────────────────────────── */
+.ticker-scanlines::after {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 255, 65, 0.06),
+    rgba(0, 255, 65, 0.06) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  animation: scanline-drift 8s linear infinite;
+  mix-blend-mode: overlay;
+}
+
+@keyframes scanline-drift {
+  from {
+    background-position-y: 0;
+  }
+  to {
+    background-position-y: 100%;
+  }
 }
