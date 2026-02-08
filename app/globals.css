@@ -41,7 +41,7 @@ body {
 }
 
 /* ─────────────────────────────────────────────
-   Ticker scanline overlay (kept subtle)
+   Ticker scanline overlay (subtle)
    ───────────────────────────────────────────── */
 .ticker-scanlines::after {
   content: '';
@@ -69,29 +69,22 @@ body {
 }
 
 /* ─────────────────────────────────────────────
-   Matrix phosphor-lock pulse (main content)
-   ─────────────────────────────────────────────
-   - No movement
-   - No flicker
-   - No layout shift
-   - Rare, brief signal tighten
+   Matrix phosphor-lock pulse
+   (unpredictable timing, no motion)
    ───────────────────────────────────────────── */
+
+/* Core pulse shape */
 @keyframes matrix-pulse {
-  /* idle */
-  0%, 94%, 100% {
+  0%, 96%, 100% {
     filter: none;
   }
-
-  /* lock event */
-  95% {
+  97% {
     filter:
       contrast(1.15)
       saturate(1.25)
       drop-shadow(0 0 0.6px rgba(0, 255, 65, 0.35));
   }
-
-  /* decay */
-  97% {
+  98% {
     filter:
       contrast(1.06)
       saturate(1.1)
@@ -99,7 +92,14 @@ body {
   }
 }
 
-/* Apply only to main content */
+/*
+  We layer THREE pulse timelines.
+  Their interaction creates perceived randomness:
+  ~5s, ~20s, ~4s, ~15s, ~7s, ~24s, etc.
+*/
 .matrix-flicker {
-  animation: matrix-pulse 24s infinite;
+  animation:
+    matrix-pulse 5s infinite,
+    matrix-pulse 17s infinite 3s,
+    matrix-pulse 29s infinite 11s;
 }
