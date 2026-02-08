@@ -28,7 +28,7 @@ export default function OpenClawBanner() {
           href="https://x.com/PAI_KEY_org"
           target="_blank"
           rel="noopener noreferrer"
-          className="font-semibold text-white hover:text-matrix-green transition-colors"
+          className="font-semibold text-white hover:text-matrix-green transition-colors no-underline border-b border-transparent hover:border-matrix-green"
         >
           X <span className="text-gray-400">@PAI_KEY_org</span>
         </a>
