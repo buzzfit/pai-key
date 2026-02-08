@@ -1,4 +1,3 @@
-// components/NavBar.jsx
 import Link from 'next/link';
 
 export default function NavBar() {
@@ -12,12 +11,11 @@ export default function NavBar() {
 
         {/* Logo */}
         <Link href="/" className="text-2xl font-extrabold tracking-wider text-matrix-green">
-          PAI<span className="opacity-60">_</span>Key
+          PAI-KEY<span className="opacity-60">.org</span>
         </Link>
 
         {/* Navigation Links */}
         <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-8">
-
           <NavItem href="/">Home</NavItem>
           <NavItem href="mailto:admin@pai-key.org">Contact</NavItem>
           <NavItem href="/whitepaper">Whitepaper</NavItem>
@@ -26,7 +24,6 @@ export default function NavBar() {
           <NavItem href="https://github.com/buzzfit/pai-key" external>
             GitHub
           </NavItem>
-
         </div>
       </div>
     </nav>
