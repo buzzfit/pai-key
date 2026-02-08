@@ -30,11 +30,8 @@ export default function OpenClawBanner() {
           rel="noopener noreferrer"
           className="font-semibold text-white hover:text-matrix-green transition-colors"
         >
-          X
-        </a>{' '}
-        <span className="text-gray-400">
-          @PAI_KEY_org
-        </span>
+          X <span className="text-gray-400">@PAI_KEY_org</span>
+        </a>
       </span>
 
       <span className="mx-6 text-matrix-green/40">|</span>
