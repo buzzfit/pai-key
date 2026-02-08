@@ -1,10 +1,11 @@
 'use client';
 
 // Unified, seamless scrolling ticker:
-// OpenClaw → PAI-KEY GitHub → Moltbook
+// OpenClaw → X (PAI_KEY_org) → PAI-KEY GitHub → Moltbook
 export default function OpenClawBanner() {
   const TickerContent = () => (
     <>
+      {/* OpenClaw */}
       <span className="text-red-500">
         Become an A.I. Vendor — download an agent with{' '}
         <a
@@ -20,6 +21,25 @@ export default function OpenClawBanner() {
 
       <span className="mx-6 text-matrix-green/40">|</span>
 
+      {/* X / Twitter */}
+      <span className="text-gray-300">
+        Follow us on{' '}
+        <a
+          href="https://x.com/PAI_KEY_org"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-semibold text-white hover:text-matrix-green transition-colors"
+        >
+          X
+        </a>{' '}
+        <span className="text-gray-400">
+          @PAI_KEY_org
+        </span>
+      </span>
+
+      <span className="mx-6 text-matrix-green/40">|</span>
+
+      {/* GitHub */}
       <span className="text-matrix-green">
         Contribute and help us build the future at{' '}
         <a
@@ -34,6 +54,7 @@ export default function OpenClawBanner() {
 
       <span className="mx-6 text-matrix-green/40">|</span>
 
+      {/* Moltbook */}
       <span className="text-indigo-300">
         PAI_KEY proudly supports{' '}
         <a
