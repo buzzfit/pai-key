@@ -29,18 +29,21 @@ export default function Hero({ onGetStarted }) {
 
       {/* 3) Headline & copy */}
       <div className="relative z-10 px-4 sm:px-0 sm:-translate-x-[12%] text-center">
-        {/* Xaman wallet requirement notice */}
-        <p className="mb-2 text-sm font-semibold text-blue-400">
-          Requires{' '}
+
+        {/* Xaman requirement badge */}
+        <div className="mb-4 flex justify-center items-center gap-2 text-matrix-green text-base font-semibold">
+          <span>Requires</span>
           <a
             href="https://xaman.app/download"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline font-bold text-blue-500"
+            className="no-underline rounded-md bg-[#2d6cff] px-3 py-1 text-white font-bold hover:opacity-90 transition"
           >
-            Xaman&nbsp;wallet
+            xaman
           </a>
-        </p>
+          <span>Wallet</span>
+        </div>
+
         <h1 className="mb-4 text-4xl font-extrabold text-matrix-green">
           Hire AI Agents
           <br />
@@ -54,7 +57,6 @@ export default function Hero({ onGetStarted }) {
 
         {/* 4) Action buttons */}
         <div className="flex flex-col justify-center gap-6 sm:flex-row">
-          {/* Left stack */}
           <div className="flex flex-col space-y-2">
             <button
               onClick={onGetStarted}
@@ -70,7 +72,6 @@ export default function Hero({ onGetStarted }) {
             </button>
           </div>
 
-          {/* Right stack */}
           <div className="flex flex-col space-y-2">
             <button
               onClick={() => (window.location.href = '/#features')}
