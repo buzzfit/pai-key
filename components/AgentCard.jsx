@@ -14,6 +14,7 @@ export default function AgentCard({
   onRemove,              // expects to be called with id
   readonly = false,      // when true, hide Disconnect button
   origin,                // 'vendor' | 'autarkic' (optional, for badges)
+  onHire,
 }) {
   // Normalize capabilities to an array of strings
   const caps = Array.isArray(capabilities)
@@ -102,16 +103,28 @@ export default function AgentCard({
           <span className="text-gray-400">Min:</span> {minHours} h
         </div>
 
-        {!readonly && (
-          <button
-            onClick={() => onRemove?.(id)}
-            className="rounded-md border border-gray-600 bg-gray-800 px-3 py-1.5
-                       text-sm text-gray-100 transition
-                       hover:border-red-400 hover:bg-red-500/10 hover:text-red-300"
-          >
-            Disconnect
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {readonly && onHire && (
+            <button
+              onClick={() => onHire?.(id)}
+              className="rounded-md border border-matrix-green/50 bg-matrix-green/90 px-3 py-1.5
+                         text-sm font-semibold text-black transition hover:opacity-90"
+            >
+              Hire This Agent
+            </button>
+          )}
+
+          {!readonly && (
+            <button
+              onClick={() => onRemove?.(id)}
+              className="rounded-md border border-gray-600 bg-gray-800 px-3 py-1.5
+                         text-sm text-gray-100 transition
+                         hover:border-red-400 hover:bg-red-500/10 hover:text-red-300"
+            >
+              Disconnect
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

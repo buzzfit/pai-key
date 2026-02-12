@@ -12,12 +12,13 @@ export async function GET(request) {
 
   const { searchParams } = new URL(request.url);
   const scope = searchParams.get('scope') || 'mine';
+  const status = searchParams.get('status') || null;
   const jobs = await jobsService.listJobs(
     scope === 'all'
-      ? {}
+      ? { status }
       : auth.type === 'human'
-        ? { hirerWallet: auth.account }
-        : { agentWallet: auth.account }
+        ? { hirerWallet: auth.account, status }
+        : { agentWallet: auth.account, status }
   );
 
   return NextResponse.json({ ok: true, jobs });

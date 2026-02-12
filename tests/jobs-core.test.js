@@ -29,8 +29,11 @@ function makeHarness() {
     async createJob(job) { jobs.set(job.id, job); return job; },
     async updateJob(job) { jobs.set(job.id, job); return job; },
     async getJob(id) { return jobs.get(id) || null; },
-    async listJobs({ hirerWallet, agentWallet }) {
-      return [...jobs.values()].filter((j) => !hirerWallet || j.hirerWallet === hirerWallet).filter((j) => !agentWallet || j.agentWallet === agentWallet);
+    async listJobs({ hirerWallet, agentWallet, status }) {
+      return [...jobs.values()]
+        .filter((j) => !hirerWallet || j.hirerWallet === hirerWallet)
+        .filter((j) => !agentWallet || j.agentWallet === agentWallet)
+        .filter((j) => !status || j.status === status);
     },
     async saveDispute(d) { disputes.set(d.jobId, d); return d; },
     async getDispute(jobId) { return disputes.get(jobId) || null; },
@@ -116,6 +119,48 @@ test('rejection opens dispute and resolve refund marks refunded', async () => {
   });
   assert.equal(resolved.job.status, 'refunded');
   assert.equal(resolved.dispute.status, 'resolved');
+});
+
+test('dispute can be resolved to release', async () => {
+  const { service } = makeHarness();
+
+  const created = await service.createJob({
+    hirerWallet: 'rHIRER',
+    body: { agentId: 'agent-1', offer: { priceXrp: '12' }, terms: 'Task' },
+  });
+  const jobId = created.job.id;
+
+  await service.depositEscrow({ jobId, hirerWallet: 'rHIRER' });
+  await service.submitWork({ jobId, agentWallet: 'rAGENT1', body: { proof: { link: 'ipfs://proof' } } });
+  await service.openDispute({ jobId, actorWallet: 'rHIRER', reason: 'Needs admin decision' });
+
+  const resolved = await service.resolveDispute({
+    jobId,
+    resolver: 'admin',
+    body: { resolution: 'release', note: 'Deliverable accepted via arbitration' },
+  });
+
+  assert.equal(resolved.job.status, 'completed');
+  assert.equal(resolved.dispute.status, 'resolved');
+});
+
+test('listJobs supports status filters for agent polling', async () => {
+  const { service } = makeHarness();
+
+  const created = await service.createJob({
+    hirerWallet: 'rHIRER',
+    body: { agentId: 'agent-1', offer: { priceXrp: '5' }, terms: 'Task' },
+  });
+  const jobId = created.job.id;
+
+  await service.depositEscrow({ jobId, hirerWallet: 'rHIRER' });
+
+  const escrowed = await service.listJobs({ status: 'escrowed' });
+  assert.equal(escrowed.length, 1);
+  assert.equal(escrowed[0].id, jobId);
+
+  const submitted = await service.listJobs({ status: 'submitted' });
+  assert.equal(submitted.length, 0);
 });
 
 test('authorization mismatch on submit is rejected', async () => {
