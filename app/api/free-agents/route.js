@@ -147,7 +147,13 @@ export async function POST(request) {
     proof,
     payoutAccount: xrpAddr || wallet,
     completed_jobs: 0,
+    accepted_reviews: 0,
+    rejected_reviews: 0,
+    disputed_reviews: 0,
+    total_ratings: 0,
+    ratings_count: 0,
     avg_rating: 0,
+    performance_score: 0,
     busy: false,
     createdAt,
   };
