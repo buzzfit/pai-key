@@ -29,7 +29,7 @@ This document describes the end-to-end XRPL escrow flow used in the hiring lobby
      - `disputed`: transitions to `disputed`.
 
 6. **Release escrow (EscrowFinish)**
-   - `POST /api/jobs/{jobId}/release`
+   - `POST /api/jobs/{jobId}/finish` (alias: `POST /api/jobs/{jobId}/release`)
    - Primary: webhook callback finalizes to `completed`.
    - Fallback: `GET /api/jobs/{jobId}/release-status`.
 
