@@ -20,14 +20,16 @@ export async function GET(request) {
     return jsonError(403, 'Forbidden', 'Agent-scoped queries require agent bearer authentication');
   }
 
+  const includeArchived = searchParams.get('includeArchived') === 'true';
+
   const jobs = await jobsService.listJobs(
     requestedAgentWallet
-      ? { agentWallet: requestedAgentWallet, status }
+      ? { agentWallet: requestedAgentWallet, status, includeArchived }
       : scope === 'all'
-      ? { status }
+      ? { status, includeArchived }
       : auth.type === 'human'
-        ? { hirerWallet: auth.account, status }
-        : { agentWallet: auth.account, status }
+        ? { hirerWallet: auth.account, status, includeArchived }
+        : { agentWallet: auth.account, status, includeArchived }
   );
 
   return NextResponse.json({ ok: true, jobs });

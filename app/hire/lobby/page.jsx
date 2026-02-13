@@ -9,7 +9,6 @@ const HUMAN_VISIBLE_STATUSES = [
   'escrowed',
   'accepted_by_agent',
   'submitted',
-  'accepted',
   'rejected',
   'completed',
   'refunded',
@@ -387,11 +386,14 @@ export default function HireLobbyPage() {
                           <button disabled={jobBusy} onClick={() => postJobAction(selectedJob.id, 'dispute', { reason: 'Need adjudication' })} className="rounded border border-red-500 px-3 py-1.5 text-red-300">Open Dispute</button>
                         </>
                       )}
-                      {selectedJob.status === 'accepted' && (
+                      {selectedJob.status === 'submitted' && selectedJob.review?.decision === 'accepted' && (
                         <button disabled={jobBusy} onClick={() => postJobAction(selectedJob.id, 'release')} className="rounded bg-matrix-green px-3 py-1.5 text-black">Release Escrow</button>
                       )}
                       {['escrowed', 'accepted_by_agent', 'submitted', 'disputed'].includes(selectedJob.status) && (
                         <button disabled={jobBusy} onClick={() => postJobAction(selectedJob.id, 'refund', { reason: 'Refund requested' })} className="rounded border border-gray-400 px-3 py-1.5">Refund</button>
+                      )}
+                      {['completed', 'refunded', 'disputed', 'submitted', 'escrowed', 'accepted_by_agent', 'pending_deposit'].includes(selectedJob.status) && (
+                        <button disabled={jobBusy} onClick={() => postJobAction(selectedJob.id, 'archive')} className="rounded border border-matrix-green/60 px-3 py-1.5">Archive Job</button>
                       )}
                     </div>
                   </div>
