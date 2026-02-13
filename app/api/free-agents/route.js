@@ -16,6 +16,16 @@ const BY_WALLET = (acct) => `autarkic:byWallet:${acct}`; // zset of IDs per wall
 const AGENT     = (id) => `autarkic:${id}`;              // hash per agent
 const WALLET    = (acct) => `autarkic:wallet:${acct}`;   // single-claim key per wallet
 
+function normalizeAgent(a) {
+  return {
+    ...a,
+    completed_jobs: Number(a?.completed_jobs || 0),
+    avg_rating: Number(a?.avg_rating || 0),
+    performance_score: Number(a?.performance_score || 0),
+    busy: Boolean(a?.busy),
+  };
+}
+
 function apiError(status, code, message, hint) {
   return NextResponse.json({ ok: false, error: { code, message, hint } }, { status });
 }
@@ -75,7 +85,8 @@ export async function GET(request) {
 
   const agents = (await Promise.all(ids.map((id) => kv.hgetall(AGENT(id)))))
     .filter(Boolean)
-    .filter(a => !type || a.agentType === type);
+    .filter(a => !type || a.agentType === type)
+    .map(normalizeAgent);
 
   return NextResponse.json({ agents });
 }
