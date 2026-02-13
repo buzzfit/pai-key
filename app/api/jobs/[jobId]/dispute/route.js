@@ -13,6 +13,7 @@ export async function POST(request, { params }) {
     jobId: params.jobId,
     actorWallet: auth.account,
     reason: body?.reason,
+    body,
   });
   if (result.error) return jsonError(result.status, result.error[0], result.error[1]);
   return NextResponse.json({ ok: true, job: result.job, dispute: result.dispute });

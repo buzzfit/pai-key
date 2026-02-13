@@ -7,6 +7,7 @@ import AgentCard from '../../../components/AgentCard';
 const HUMAN_VISIBLE_STATUSES = [
   'pending_deposit',
   'escrowed',
+  'in_progress',
   'submitted',
   'accepted_pending_release',
   'completed',
@@ -43,6 +44,7 @@ export default function HireLobbyPage() {
   const [criteria, setCriteria] = useState('');
   const [jobBusy, setJobBusy] = useState(false);
   const [jobMessage, setJobMessage] = useState('');
+  const [awaitingSignature, setAwaitingSignature] = useState(null);
 
   const [jobs, setJobs] = useState([]);
   const [jobsLoading, setJobsLoading] = useState(false);
@@ -93,10 +95,9 @@ export default function HireLobbyPage() {
     setJobsLoading(true);
     try {
       const payload = await jsonFetch('/api/jobs?scope=mine', { cache: 'no-store' });
-      setJobs((payload.jobs || []).filter((job) => HUMAN_VISIBLE_STATUSES.includes(job.status)));
-      if (!selectedJobId && payload.jobs?.length) {
-        setSelectedJobId(payload.jobs[0].id);
-      }
+      const nextJobs = (payload.jobs || []).filter((job) => HUMAN_VISIBLE_STATUSES.includes(job.status));
+      setJobs(nextJobs);
+      if (!selectedJobId && nextJobs.length) setSelectedJobId(nextJobs[0].id);
     } catch (e) {
       console.error(e);
       setJobMessage(`Unable to load jobs: ${e.message}`);
@@ -109,6 +110,32 @@ export default function HireLobbyPage() {
     loadAgents();
     loadHumanJobs();
   }, []);
+
+  useEffect(() => {
+    if (!awaitingSignature) return;
+    const endpoint = awaitingSignature.type === 'deposit' ? 'escrow-status' : 'release-status';
+    const targetStatus = awaitingSignature.type === 'deposit' ? 'escrowed' : 'completed';
+    let cancelled = false;
+
+    const timer = setInterval(async () => {
+      try {
+        const payload = await jsonFetch(`/api/jobs/${awaitingSignature.jobId}/${endpoint}`, { cache: 'no-store' });
+        if (cancelled) return;
+        if (payload?.job?.status === targetStatus) {
+          setJobMessage(`Signature confirmed. Job ${awaitingSignature.jobId} is now ${targetStatus}.`);
+          setAwaitingSignature(null);
+          await loadHumanJobs();
+        }
+      } catch (e) {
+        if (!cancelled) setJobMessage(`Polling ${endpoint} failed: ${e.message}`);
+      }
+    }, 4000);
+
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, [awaitingSignature]);
 
   const filtered = useMemo(() => {
     let list = items;
@@ -169,7 +196,15 @@ export default function HireLobbyPage() {
         headers: body ? { 'content-type': 'application/json' } : undefined,
         body: body ? JSON.stringify(body) : undefined,
       });
-      setJobMessage(`Job ${jobId} updated: ${payload.job.status}`);
+
+      if (payload?.escrowTx?.action === 'signature_required') {
+        setAwaitingSignature({ jobId, type: path === 'deposit' ? 'deposit' : 'release' });
+        setJobMessage(`Awaiting signature in Xaman for ${path}.`);
+        if (payload.escrowTx.signUrl) window.open(payload.escrowTx.signUrl, '_blank', 'noopener,noreferrer');
+      } else {
+        setJobMessage(`Job ${jobId} updated: ${payload.job.status}`);
+      }
+
       await loadHumanJobs();
       setSelectedJobId(jobId);
     } catch (e) {
@@ -187,12 +222,13 @@ export default function HireLobbyPage() {
     setAgentBusy(true);
     setAgentMessage('');
     try {
-      const payload = await jsonFetch('/api/jobs?scope=all&status=escrowed', {
+      const payload = await jsonFetch('/api/jobs?scope=all', {
         headers: { authorization: `Bearer ${agentToken.trim()}` },
         cache: 'no-store',
       });
-      setAgentJobs(payload.jobs || []);
-      setAgentMessage(`Loaded ${payload.jobs?.length || 0} escrowed jobs.`);
+      const visible = (payload.jobs || []).filter((j) => ['escrowed', 'in_progress'].includes(j.status));
+      setAgentJobs(visible);
+      setAgentMessage(`Loaded ${visible.length} active jobs.`);
     } catch (e) {
       setAgentMessage(`Agent jobs load failed: ${e.message}`);
     } finally {
@@ -205,6 +241,10 @@ export default function HireLobbyPage() {
     setAgentBusy(true);
     setAgentMessage('');
     try {
+      await jsonFetch(`/api/jobs/${jobId}/accept`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${agentToken.trim()}` },
+      }).catch(() => null);
       const proof = JSON.parse(submissionProof || '{}');
       const payload = await jsonFetch(`/api/jobs/${jobId}/submission`, {
         method: 'POST',
@@ -274,6 +314,10 @@ export default function HireLobbyPage() {
                   capabilities={a.capabilities}
                   agentType={a.agentType}
                   origin={a._origin}
+                  performance_score={a.performance_score}
+                  completed_jobs={a.completed_jobs}
+                  avg_rating={a.avg_rating}
+                  busy={a.busy}
                   readonly
                   onHire={() => setActiveAgent(a)}
                 />
@@ -337,7 +381,7 @@ export default function HireLobbyPage() {
                       {selectedJob.status === 'accepted_pending_release' && (
                         <button disabled={jobBusy} onClick={() => postJobAction(selectedJob.id, 'release')} className="rounded bg-matrix-green px-3 py-1.5 text-black">Release Escrow</button>
                       )}
-                      {['escrowed', 'submitted', 'disputed'].includes(selectedJob.status) && (
+                      {['escrowed', 'in_progress', 'submitted', 'disputed'].includes(selectedJob.status) && (
                         <button disabled={jobBusy} onClick={() => postJobAction(selectedJob.id, 'refund', { reason: 'Refund requested' })} className="rounded border border-gray-400 px-3 py-1.5">Refund</button>
                       )}
                     </div>
@@ -347,6 +391,7 @@ export default function HireLobbyPage() {
             </div>
           )}
           {jobMessage && <p className="text-sm text-matrix-green">{jobMessage}</p>}
+          {awaitingSignature && <p className="text-sm text-yellow-300">Awaiting signature for {awaitingSignature.type} on job {awaitingSignature.jobId}.</p>}
         </section>
 
         <section className="rounded-xl border border-matrix-green/20 bg-gray-900/40 p-4 space-y-3">

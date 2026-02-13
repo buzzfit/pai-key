@@ -301,3 +301,50 @@ curl -X POST http://localhost:3000/api/jobs/<jobId>/release -H 'cookie: xummAcco
 - `XRPL_ESCROW_MODE` (`mock` | `relay`)
 - `XRPL_ESCROW_RELAY_URL` (required if relay mode)
 - `XRPL_ESCROW_RELAY_TOKEN` (optional bearer)
+
+## 8  Async Xaman Escrow Signing Loop (Live Hire)
+
+### Updated Job Lifecycle
+`pending_deposit -> escrowed -> in_progress -> submitted -> accepted_pending_release -> completed`
+
+Signature waits are encoded in `job.escrow.status`:
+- `awaiting_deposit_signature` after `POST /api/jobs/{jobId}/deposit`
+- `awaiting_release_signature` after `POST /api/jobs/{jobId}/release`
+
+### New Endpoints
+- `POST /api/jobs/{jobId}/accept` (agent bearer auth):
+  - Allowed only when `status=escrowed` and bearer wallet matches assigned `agentWallet`.
+  - Transitions job to `in_progress`, records `acceptedAt`, marks agent `busy=true`.
+- `GET /api/jobs/{jobId}/escrow-status` (human auth):
+  - Polls Xaman payload status and XRPL `tx` details.
+  - On signed + validated `EscrowCreate`, stores `createTxHash`, `escrowSequence` (from tx `Sequence`), and transitions to `escrowed`.
+- `GET /api/jobs/{jobId}/release-status` (human auth):
+  - Polls Xaman payload status and XRPL `tx` details.
+  - On signed + validated `EscrowFinish`, stores `finishTxHash` and transitions to `completed`.
+
+### XRPL Escrow Composition
+- `EscrowCreate` uses XRP in drops and is FIX1571-compliant by including:
+  - `FinishAfter` (time when funds can be finished)
+  - `CancelAfter` (time after which refund via `EscrowCancel` may succeed)
+- `EscrowFinish` payload includes `Owner` and `OfferSequence`.
+- `EscrowCancel` payload includes `Owner` and `OfferSequence`.
+
+### CancelAfter Policy
+Current defaults:
+- `XRPL_ESCROW_DURATION_SECONDS` (default 3 days) -> `FinishAfter`
+- `XRPL_ESCROW_CANCEL_GRACE_SECONDS` (default 14 days) -> `CancelAfter`
+
+Refund constraint: `EscrowCancel` is only valid on-ledger after `CancelAfter` has passed.
+
+### Frontend Loop
+`/hire/lobby` now:
+- opens Xaman `signUrl` in a new tab when backend responds with `action=signature_required`
+- shows awaiting-signature state
+- polls `escrow-status` / `release-status` until job transitions
+- refreshes job list with new statuses
+
+### Dispute Evidence Notes
+Dispute records now support optional evidence fields:
+- `evidenceNotes`
+- `evidenceLinks[]`
+- appended `notes[]` for follow-up participant/admin notes.

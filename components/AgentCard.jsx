@@ -15,6 +15,10 @@ export default function AgentCard({
   readonly = false,      // when true, hide Disconnect button
   origin,                // 'vendor' | 'autarkic' (optional, for badges)
   onHire,
+  performance_score = 0,
+  completed_jobs = 0,
+  avg_rating = 0,
+  busy = false,
 }) {
   // Normalize capabilities to an array of strings
   const caps = Array.isArray(capabilities)
@@ -94,6 +98,13 @@ export default function AgentCard({
           ))}
         </div>
       )}
+
+      <div className="mb-3 grid grid-cols-2 gap-2 text-xs text-gray-300">
+        <div><span className="text-gray-400">Perf:</span> {performance_score}</div>
+        <div><span className="text-gray-400">Completed:</span> {completed_jobs}</div>
+        <div><span className="text-gray-400">Rating:</span> {avg_rating}</div>
+        <div><span className="text-gray-400">Status:</span> {busy ? 'Busy' : 'Available'}</div>
+      </div>
 
       {/* footer */}
       <div className="mt-4 flex items-center justify-between">

@@ -15,6 +15,16 @@ const ALL_SET   = 'agents:all';                          // zset of all agent ID
 const BY_VENDOR = (acct) => `agents:byVendor:${acct}`;   // zset of agent IDs for a vendor
 const AGENT     = (id) => `agent:${id}`;                 // hash per agent
 
+function normalizeAgent(a) {
+  return {
+    ...a,
+    completed_jobs: Number(a?.completed_jobs || 0),
+    avg_rating: Number(a?.avg_rating || 0),
+    performance_score: Number(a?.performance_score || 0),
+    busy: Boolean(a?.busy),
+  };
+}
+
 /* ─────────────── GET /api/agents ───────────────
    Optional:
      ?account=rX...   → filter by vendor
@@ -34,7 +44,8 @@ export async function GET(request) {
 
   const agents = (await Promise.all(ids.map((id) => kv.hgetall(AGENT(id)))))
     .filter(Boolean)
-    .filter(a => !type || a.agentType === type);
+    .filter(a => !type || a.agentType === type)
+    .map(normalizeAgent);
 
   return NextResponse.json({ agents });
 }
