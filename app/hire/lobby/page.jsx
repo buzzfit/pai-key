@@ -7,9 +7,10 @@ import AgentCard from '../../../components/AgentCard';
 const HUMAN_VISIBLE_STATUSES = [
   'pending_deposit',
   'escrowed',
-  'in_progress',
+  'accepted_by_agent',
   'submitted',
-  'accepted_pending_release',
+  'accepted',
+  'rejected',
   'completed',
   'refunded',
   'disputed',
@@ -222,11 +223,19 @@ export default function HireLobbyPage() {
     setAgentBusy(true);
     setAgentMessage('');
     try {
-      const payload = await jsonFetch('/api/jobs?scope=all', {
+      const payload = await jsonFetch('/api/jobs?agent=self&status=escrowed', {
         headers: { authorization: `Bearer ${agentToken.trim()}` },
         cache: 'no-store',
       });
-      const visible = (payload.jobs || []).filter((j) => ['escrowed', 'in_progress'].includes(j.status));
+      const submittedPayload = await jsonFetch('/api/jobs?agent=self&status=submitted', {
+        headers: { authorization: `Bearer ${agentToken.trim()}` },
+        cache: 'no-store',
+      });
+      const acceptedPayload = await jsonFetch('/api/jobs?agent=self&status=accepted_by_agent', {
+        headers: { authorization: `Bearer ${agentToken.trim()}` },
+        cache: 'no-store',
+      });
+      const visible = [...(payload.jobs || []), ...(submittedPayload.jobs || []), ...(acceptedPayload.jobs || [])];
       setAgentJobs(visible);
       setAgentMessage(`Loaded ${visible.length} active jobs.`);
     } catch (e) {
@@ -378,10 +387,10 @@ export default function HireLobbyPage() {
                           <button disabled={jobBusy} onClick={() => postJobAction(selectedJob.id, 'dispute', { reason: 'Need adjudication' })} className="rounded border border-red-500 px-3 py-1.5 text-red-300">Open Dispute</button>
                         </>
                       )}
-                      {selectedJob.status === 'accepted_pending_release' && (
+                      {selectedJob.status === 'accepted' && (
                         <button disabled={jobBusy} onClick={() => postJobAction(selectedJob.id, 'release')} className="rounded bg-matrix-green px-3 py-1.5 text-black">Release Escrow</button>
                       )}
-                      {['escrowed', 'in_progress', 'submitted', 'disputed'].includes(selectedJob.status) && (
+                      {['escrowed', 'accepted_by_agent', 'submitted', 'disputed'].includes(selectedJob.status) && (
                         <button disabled={jobBusy} onClick={() => postJobAction(selectedJob.id, 'refund', { reason: 'Refund requested' })} className="rounded border border-gray-400 px-3 py-1.5">Refund</button>
                       )}
                     </div>

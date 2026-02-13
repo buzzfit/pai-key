@@ -61,8 +61,15 @@ test('accept endpoint transition and busy flag', async () => {
   await service.depositEscrow({ jobId: created.job.id, hirerWallet: 'rHIRER' });
 
   const accepted = await service.acceptJob({ jobId: created.job.id, agentWallet: 'rAGENT1' });
-  assert.equal(accepted.job.status, 'in_progress');
+  assert.equal(accepted.job.status, 'accepted_by_agent');
   assert.equal(agents.get('agent-1').busy, true);
+});
+
+test('state machine rejects invalid transitions', async () => {
+  const { service } = makeHarness();
+  const created = await service.createJob({ hirerWallet: 'rHIRER', body: { agentId: 'agent-1', offer: { priceXrp: '10' }, terms: 'Task' } });
+  const submitBeforeAccept = await service.submitWork({ jobId: created.job.id, agentWallet: 'rAGENT1', body: { proof: { ok: true } } });
+  assert.equal(submitBeforeAccept.error[0], 'InvalidState');
 });
 
 test('escrow status endpoints flow with async signing', async () => {
@@ -102,4 +109,21 @@ test('realistic end-to-end async flow', async () => {
 
   assert.equal(final.job.status, 'completed');
   assert.equal(final.job.escrow.status, 'released');
+});
+
+test('xumm callback finalizes escrow create and finish', async () => {
+  const { service } = makeHarness({ asyncSign: true });
+  const created = await service.createJob({ hirerWallet: 'rHIRER', body: { agentId: 'agent-1', offer: { priceXrp: '15' }, terms: 'Deliver report' } });
+  const jobId = created.job.id;
+
+  const dep = await service.depositEscrow({ jobId, hirerWallet: 'rHIRER' });
+  await service.processXummCallback({ payloadUuid: dep.tx.uuid, signed: true, txid: 'tx-create-1', txResult: { hash: 'tx-create-1', validated: true, meta: { TransactionResult: 'tesSUCCESS' }, tx_json: { Sequence: 91 }, ledger_index: 21 } });
+  const accepted = await service.acceptJob({ jobId, agentWallet: 'rAGENT1' });
+  assert.equal(accepted.job.status, 'accepted_by_agent');
+  await service.submitWork({ jobId, agentWallet: 'rAGENT1', body: { proof: { ok: true } } });
+  await service.reviewSubmission({ jobId, hirerWallet: 'rHIRER', body: { decision: 'accepted', rating: 5 } });
+
+  const release = await service.releaseEscrow({ jobId, hirerWallet: 'rHIRER' });
+  const final = await service.processXummCallback({ payloadUuid: release.tx.uuid, signed: true, txid: 'tx-finish-1', txResult: { hash: 'tx-finish-1', validated: true, meta: { TransactionResult: 'tesSUCCESS' }, tx_json: {}, ledger_index: 22 } });
+  assert.equal(final.job.status, 'completed');
 });

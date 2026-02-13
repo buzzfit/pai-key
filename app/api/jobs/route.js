@@ -13,8 +13,17 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const scope = searchParams.get('scope') || 'mine';
   const status = searchParams.get('status') || null;
+  const agent = searchParams.get('agent') || null;
+  const requestedAgentWallet = agent === 'self' ? auth.account : agent;
+
+  if (requestedAgentWallet && auth.type !== 'agent') {
+    return jsonError(403, 'Forbidden', 'Agent-scoped queries require agent bearer authentication');
+  }
+
   const jobs = await jobsService.listJobs(
-    scope === 'all'
+    requestedAgentWallet
+      ? { agentWallet: requestedAgentWallet, status }
+      : scope === 'all'
       ? { status }
       : auth.type === 'human'
         ? { hirerWallet: auth.account, status }
