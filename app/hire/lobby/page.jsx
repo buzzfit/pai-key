@@ -50,12 +50,6 @@ export default function HireLobbyPage() {
   const [jobsLoading, setJobsLoading] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState(null);
 
-  const [agentToken, setAgentToken] = useState('');
-  const [agentJobs, setAgentJobs] = useState([]);
-  const [agentBusy, setAgentBusy] = useState(false);
-  const [submissionProof, setSubmissionProof] = useState('{"type":"link","value":"https://example.com/proof"}');
-  const [submissionNotes, setSubmissionNotes] = useState('');
-  const [agentMessage, setAgentMessage] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -214,63 +208,6 @@ export default function HireLobbyPage() {
     }
   };
 
-  const loadAgentJobs = async () => {
-    if (!agentToken.trim()) {
-      setAgentMessage('Provide an agent bearer token first.');
-      return;
-    }
-    setAgentBusy(true);
-    setAgentMessage('');
-    try {
-      const payload = await jsonFetch('/api/jobs?agent=self&status=escrowed', {
-        headers: { authorization: `Bearer ${agentToken.trim()}` },
-        cache: 'no-store',
-      });
-      const submittedPayload = await jsonFetch('/api/jobs?agent=self&status=submitted', {
-        headers: { authorization: `Bearer ${agentToken.trim()}` },
-        cache: 'no-store',
-      });
-      const acceptedPayload = await jsonFetch('/api/jobs?agent=self&status=accepted_by_agent', {
-        headers: { authorization: `Bearer ${agentToken.trim()}` },
-        cache: 'no-store',
-      });
-      const visible = [...(payload.jobs || []), ...(submittedPayload.jobs || []), ...(acceptedPayload.jobs || [])];
-      setAgentJobs(visible);
-      setAgentMessage(`Loaded ${visible.length} active jobs.`);
-    } catch (e) {
-      setAgentMessage(`Agent jobs load failed: ${e.message}`);
-    } finally {
-      setAgentBusy(false);
-    }
-  };
-
-  const submitAsAgent = async (jobId) => {
-    if (!agentToken.trim()) return;
-    setAgentBusy(true);
-    setAgentMessage('');
-    try {
-      await jsonFetch(`/api/jobs/${jobId}/accept`, {
-        method: 'POST',
-        headers: { authorization: `Bearer ${agentToken.trim()}` },
-      }).catch(() => null);
-      const proof = JSON.parse(submissionProof || '{}');
-      const payload = await jsonFetch(`/api/jobs/${jobId}/submission`, {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          authorization: `Bearer ${agentToken.trim()}`,
-        },
-        body: JSON.stringify({ proof, notes: submissionNotes || null }),
-      });
-      setAgentMessage(`Submission complete for ${jobId}: ${payload.job.status}`);
-      await loadAgentJobs();
-      await loadHumanJobs();
-    } catch (e) {
-      setAgentMessage(`Submission failed: ${e.message}`);
-    } finally {
-      setAgentBusy(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-black p-6 text-white" style={{ background: 'linear-gradient(to bottom, #000, #050505 35%, #000)' }}>
@@ -403,28 +340,6 @@ export default function HireLobbyPage() {
           )}
           {jobMessage && <p className="text-sm text-matrix-green">{jobMessage}</p>}
           {awaitingSignature && <p className="text-sm text-yellow-300">Awaiting signature for {awaitingSignature.type} on job {awaitingSignature.jobId}.</p>}
-        </section>
-
-        <section className="rounded-xl border border-matrix-green/20 bg-gray-900/40 p-4 space-y-3">
-          <h2 className="text-lg font-semibold">Agent Submission Console</h2>
-          <p className="text-sm text-gray-400">For docked agents/headless runners: load escrowed jobs and submit proof.</p>
-          <input value={agentToken} onChange={(e) => setAgentToken(e.target.value)} placeholder="Agent Bearer Token" className="w-full rounded border border-matrix-green/30 bg-black p-2" />
-          <button onClick={loadAgentJobs} disabled={agentBusy} className="rounded border border-matrix-green/40 px-4 py-2">Load Escrowed Jobs</button>
-          <textarea value={submissionProof} onChange={(e) => setSubmissionProof(e.target.value)} className="h-24 w-full rounded border border-matrix-green/30 bg-black p-2 font-mono text-xs" />
-          <input value={submissionNotes} onChange={(e) => setSubmissionNotes(e.target.value)} placeholder="Submission notes" className="w-full rounded border border-matrix-green/30 bg-black p-2" />
-          <div className="space-y-2">
-            {agentJobs.map((job) => (
-              <div key={job.id} className="flex items-center justify-between rounded border border-gray-700 p-2">
-                <div>
-                  <div className="font-mono text-xs">{job.id}</div>
-                  <div className="text-xs text-gray-300">{job.terms}</div>
-                </div>
-                <button disabled={agentBusy} onClick={() => submitAsAgent(job.id)} className="rounded bg-matrix-green px-3 py-1.5 text-black">Submit Deliverable</button>
-              </div>
-            ))}
-            {!agentJobs.length && <p className="text-sm text-gray-500">No escrowed jobs loaded.</p>}
-          </div>
-          {agentMessage && <p className="text-sm text-matrix-green">{agentMessage}</p>}
         </section>
       </div>
     </div>

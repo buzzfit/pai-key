@@ -25,3 +25,12 @@ test('parseXummCallbackPayload extracts txid and uuid', () => {
   assert.equal(payload.signed, true);
   assert.equal(payload.txid, 'ABC');
 });
+
+
+test('verifyXummWebhookSignature accepts sha256= prefixed signature', () => {
+  process.env.XUMM_API_SECRET = 'sec';
+  const body = JSON.stringify({ hello: 'world' });
+  const sig = crypto.createHmac('sha256', 'sec').update(body).digest('hex');
+  const ok = verifyXummWebhookSignature(body, makeHeaders({ 'x-signature': `sha256=${sig}` }));
+  assert.equal(ok, true);
+});

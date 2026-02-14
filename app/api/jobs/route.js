@@ -26,7 +26,9 @@ export async function GET(request) {
     requestedAgentWallet
       ? { agentWallet: requestedAgentWallet, status, includeArchived }
       : scope === 'all'
-      ? { status, includeArchived }
+      ? auth.type === 'agent'
+        ? { agentWallet: auth.account, status, includeArchived }
+        : { status, includeArchived }
       : auth.type === 'human'
         ? { hirerWallet: auth.account, status, includeArchived }
         : { agentWallet: auth.account, status, includeArchived }
