@@ -195,6 +195,24 @@ export default function HireLobbyPage() {
         setAwaitingSignature({ jobId, type: path === 'deposit' ? 'deposit' : 'release' });
         setJobMessage(`Awaiting signature in Xaman for ${path}.`);
         if (payload.escrowTx.signUrl) window.open(payload.escrowTx.signUrl, '_blank', 'noopener,noreferrer');
+
+        if (path === 'deposit') {
+          const pollEscrow = async () => {
+            for (let i = 0; i < 30; i++) {
+              await new Promise((resolve) => setTimeout(resolve, 2000));
+              const statusPayload = await jsonFetch(`/api/jobs/${jobId}/escrow-status`, { cache: 'no-store' }).catch(() => null);
+              if (statusPayload?.job?.status === 'escrowed') {
+                await loadHumanJobs();
+                setSelectedJobId(jobId);
+                setAwaitingSignature(null);
+                setJobMessage('Escrow confirmed.');
+                return;
+              }
+            }
+            setJobMessage('Escrow confirmation timed out.');
+          };
+          void pollEscrow();
+        }
       } else {
         setJobMessage(`Job ${jobId} updated: ${payload.job.status}`);
       }
