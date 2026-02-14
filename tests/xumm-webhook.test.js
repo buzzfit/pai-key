@@ -34,3 +34,12 @@ test('verifyXummWebhookSignature accepts sha256= prefixed signature', () => {
   const ok = verifyXummWebhookSignature(body, makeHeaders({ 'x-signature': `sha256=${sig}` }));
   assert.equal(ok, true);
 });
+
+
+test('verifyXummWebhookSignature allows callback when no webhook auth config is set', () => {
+  delete process.env.XUMM_WEBHOOK_SECRET;
+  delete process.env.XUMM_API_SECRET;
+  delete process.env.XUMM_API_KEY;
+  const ok = verifyXummWebhookSignature('{"ok":true}', makeHeaders({}));
+  assert.equal(ok, true);
+});
