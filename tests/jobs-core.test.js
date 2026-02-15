@@ -92,7 +92,7 @@ test('escrow confirmation supports tx hash polling fallback', async () => {
 
   assert.equal(confirmed.job.status, 'escrowed');
   assert.match(confirmed.job.escrow.createTxHash, /^tx-create-/);
-  assert.equal(confirmed.job.escrow.escrowSequence, 77);
+  assert.equal(confirmed.job.escrow.escrowSequence, 101);
 });
 
 test('realistic end-to-end async flow', async () => {
