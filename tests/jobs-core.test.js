@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createJobsService } from '../lib/jobsCore.js';
 
-function makeHarness({ asyncSign = false } = {}) {
+function makeHarness({ asyncSign = false, payloadSigned = true } = {}) {
   const agents = new Map();
   const jobs = new Map();
   const disputes = new Map();
@@ -52,7 +52,10 @@ function makeHarness({ asyncSign = false } = {}) {
       return { txHash: `finish-${jobId}`, ledgerIndex: 2 };
     },
     async cancelEscrow({ jobId }) { return { txHash: `cancel-${jobId}`, ledgerIndex: 3 }; },
-    async getPayloadStatus(uuid) { return { meta: { signed: true, resolved: true }, response: { txid: `tx-${uuid}` } }; },
+    async getPayloadStatus(uuid) {
+      if (!payloadSigned) return { meta: { signed: false, resolved: false }, response: {} };
+      return { meta: { signed: true, resolved: true }, response: { txid: `tx-${uuid}` } };
+    },
     async lookupTransaction(txid) {
       if (txid.includes('create-')) return { hash: txid, validated: true, meta: { TransactionResult: 'tesSUCCESS' }, tx_json: { Sequence: 77 }, ledger_index: 10 };
       return { hash: txid, validated: true, meta: { TransactionResult: 'tesSUCCESS' }, tx_json: {}, ledger_index: 11 };
@@ -116,4 +119,23 @@ test('archive endpoint flow marks job archived', async () => {
   const created = await service.createJob({ hirerWallet: 'rHIRER', body: { agentId: 'agent-1', offer: { priceXrp: '5' }, terms: 'Task' } });
   const archived = await service.archiveJob({ jobId: created.job.id, actorWallet: 'rHIRER' });
   assert.equal(archived.job.status, 'archived');
+});
+
+
+test('confirmEscrowDeposit uses existing tx hash when payload status is unresolved', async () => {
+  const { service } = makeHarness({ asyncSign: true, payloadSigned: false });
+  const created = await service.createJob({ hirerWallet: 'rHIRER', body: { agentId: 'agent-1', offer: { priceXrp: '8' }, terms: 'Task' } });
+  const jobId = created.job.id;
+
+  await service.depositEscrow({ jobId, hirerWallet: 'rHIRER' });
+  await service.processXummCallback({
+    payloadUuid: `create-${jobId}`,
+    signed: true,
+    txid: `tx-create-${jobId}`,
+    txResult: { hash: `tx-create-${jobId}`, validated: true, meta: { TransactionResult: 'tesSUCCESS' }, tx_json: { Sequence: 77 }, ledger_index: 10 },
+  });
+
+  const result = await service.confirmEscrowDeposit({ jobId, hirerWallet: 'rHIRER' });
+  assert.equal(result.job.status, 'escrowed');
+  assert.equal(result.payload.validated, true);
 });
