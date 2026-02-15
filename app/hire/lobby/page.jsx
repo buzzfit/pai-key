@@ -214,7 +214,7 @@ export default function HireLobbyPage() {
         if (payload.escrowTx.signUrl) window.open(payload.escrowTx.signUrl, '_blank', 'noopener,noreferrer');
 
         if (path === 'deposit') {
-          void pollEscrowStatus(jobId);
+          pollEscrowStatus(jobId);
         }
       } else {
         setJobMessage(`Job ${jobId} updated: ${payload.job.status}`);
