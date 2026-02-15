@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AgentCard from '../../../components/AgentCard';
 import FreeAgentDockForm from '../../../components/FreeAgentDockForm';
+import AgentConsole from '../../../components/AgentConsole';
 // use Xaman naming via alias (file rename later)
 import { connectXummInteractive as connectXamanInteractive } from '../../../lib/xummConnectClient';
 
@@ -163,6 +164,8 @@ export default function FreeAgentDockPage() {
             </ul>
           )}
         </section>
+
+        <AgentConsole title="Autarkic Agent Console" />
       </div>
 
       {/* Modal: add agent → require interactive Xaman connect */}
