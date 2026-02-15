@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import VendorDockForm from '../../../components/VendorDockForm';
 import AgentCard from '../../../components/AgentCard';
+import AgentConsole from '../../../components/AgentConsole';
 // use Xaman naming via alias (we’ll rename the file later)
 import { connectXummInteractive as connectXamanInteractive } from '../../../lib/xummConnectClient';
 
@@ -159,6 +160,8 @@ export default function VendorDockPage() {
             ))}
           </ul>
         )}
+
+        <AgentConsole title="Vendor Agent Console" />
       </div>
 
       {/* Modal: add agent — always require interactive Xaman connect */}

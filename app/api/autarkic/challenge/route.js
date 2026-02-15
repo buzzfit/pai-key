@@ -3,6 +3,29 @@ import { createNonce, createSessionId, storeChallenge } from '../../../../lib/au
 
 export const dynamic = 'force-dynamic';
 
+export async function POST(request) {
+  const body = await request.json().catch(() => null);
+  const account = body?.wallet?.trim() || body?.account?.trim() || null;
+  const sessionId = body?.sessionId?.trim() || createSessionId();
+  const challenge = createNonce();
+
+  const { expiresAt, ttlSeconds } = await storeChallenge({
+    challenge,
+    account,
+    sessionId,
+  });
+
+  return NextResponse.json({
+    ok: true,
+    challenge,
+    wallet: account,
+    account,
+    sessionId,
+    expiresAt,
+    ttlSeconds,
+  });
+}
+
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const account = searchParams.get('account') || null;
