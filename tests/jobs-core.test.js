@@ -7,6 +7,7 @@ function makeHarness({ asyncSign = false, payloadSigned = true } = {}) {
   const jobs = new Map();
   const disputes = new Map();
   const payloadMap = new Map();
+  const calls = { cancelEscrow: [] };
 
   agents.set('agent-1', {
     id: 'agent-1',
@@ -51,7 +52,8 @@ function makeHarness({ asyncSign = false, payloadSigned = true } = {}) {
       if (asyncSign) return { action: 'signature_required', uuid: `finish-${jobId}`, signUrl: 'https://xumm/sign/finish' };
       return { txHash: `finish-${jobId}`, ledgerIndex: 2 };
     },
-    async cancelEscrow({ jobId }) {
+    async cancelEscrow({ jobId, fromWallet, escrowOwner, escrowSequence }) {
+      calls.cancelEscrow.push({ jobId, fromWallet, escrowOwner, escrowSequence });
       if (asyncSign) return { action: 'signature_required', uuid: `cancel-${jobId}`, signUrl: 'https://xumm/sign/cancel' };
       return { txHash: `cancel-${jobId}`, ledgerIndex: 3 };
     },
@@ -60,12 +62,29 @@ function makeHarness({ asyncSign = false, payloadSigned = true } = {}) {
       return { meta: { signed: true, resolved: true }, response: { txid: `tx-${uuid}` } };
     },
     async lookupTransaction(txid) {
-      if (txid.includes('create-')) return { hash: txid, validated: true, meta: { TransactionResult: 'tesSUCCESS' }, tx_json: { Sequence: 77 }, ledger_index: 10 };
+      if (txid.includes('create-')) {
+        return {
+          hash: txid,
+          validated: true,
+          meta: {
+            TransactionResult: 'tesSUCCESS',
+            AffectedNodes: [{
+              CreatedNode: {
+                LedgerEntryType: 'Escrow',
+                LedgerIndex: 'ESCROW_LEDGER_INDEX',
+                NewFields: { Owner: 'rHIRER', Sequence: 77 },
+              },
+            }],
+          },
+          tx_json: { Sequence: 77 },
+          ledger_index: 10,
+        };
+      }
       return { hash: txid, validated: true, meta: { TransactionResult: 'tesSUCCESS' }, tx_json: {}, ledger_index: 11 };
     },
   };
 
-  return { service: createJobsService({ store, escrow }), agents };
+  return { service: createJobsService({ store, escrow }), agents, calls };
 }
 
 test('accept endpoint transition and busy flag', async () => {
@@ -90,12 +109,14 @@ test('escrow confirmation supports tx hash polling fallback', async () => {
   const created = await service.createJob({ hirerWallet: 'rHIRER', body: { agentId: 'agent-1', offer: { priceXrp: '10' }, terms: 'Task' } });
   const deposit = await service.depositEscrow({ jobId: created.job.id, hirerWallet: 'rHIRER' });
 
-  await service.processXummCallback({ payloadUuid: deposit.tx.uuid, signed: true, txid: 'tx-create-1', txResult: { hash: 'tx-create-1', validated: true, meta: { TransactionResult: 'tesSUCCESS' }, tx_json: { Sequence: 101 }, ledger_index: 20 } });
+  await service.processXummCallback({ payloadUuid: deposit.tx.uuid, signed: true, txid: 'tx-create-1', txResult: { hash: 'tx-create-1', validated: true, meta: { TransactionResult: 'tesSUCCESS', AffectedNodes: [{ CreatedNode: { LedgerEntryType: 'Escrow', LedgerIndex: 'ESCROW_LEDGER_INDEX', NewFields: { Owner: 'rHIRER', Sequence: 77 } } }] }, tx_json: { Sequence: 77 }, ledger_index: 20 } });
   const confirmed = await service.confirmEscrowDeposit({ jobId: created.job.id, hirerWallet: 'rHIRER' });
 
   assert.equal(confirmed.job.status, 'escrowed');
   assert.match(confirmed.job.escrow.createTxHash, /^tx-create-/);
-  assert.equal(confirmed.job.escrow.escrowSequence, 101);
+  assert.equal(confirmed.job.escrow.escrowSequence, 77);
+  assert.equal(confirmed.job.escrowOwner, 'rHIRER');
+  assert.equal(confirmed.job.escrowLedgerIndex, 'ESCROW_LEDGER_INDEX');
 });
 
 test('realistic end-to-end async flow', async () => {
@@ -135,7 +156,22 @@ test('confirmEscrowDeposit uses existing tx hash when payload status is unresolv
     payloadUuid: `create-${jobId}`,
     signed: true,
     txid: `tx-create-${jobId}`,
-    txResult: { hash: `tx-create-${jobId}`, validated: true, meta: { TransactionResult: 'tesSUCCESS' }, tx_json: { Sequence: 77 }, ledger_index: 10 },
+    txResult: {
+      hash: `tx-create-${jobId}`,
+      validated: true,
+      meta: {
+        TransactionResult: 'tesSUCCESS',
+        AffectedNodes: [{
+          CreatedNode: {
+            LedgerEntryType: 'Escrow',
+            LedgerIndex: `escrow-ledger-${jobId}`,
+            NewFields: { Owner: 'rHIRER', Sequence: 77 },
+          },
+        }],
+      },
+      tx_json: { Sequence: 77 },
+      ledger_index: 10,
+    },
   });
 
   const result = await service.confirmEscrowDeposit({ jobId, hirerWallet: 'rHIRER' });
@@ -145,7 +181,7 @@ test('confirmEscrowDeposit uses existing tx hash when payload status is unresolv
 
 
 test('refund creates signature payload and confirms to refunded', async () => {
-  const { service } = makeHarness({ asyncSign: true });
+  const { service, calls } = makeHarness({ asyncSign: true });
   const created = await service.createJob({ hirerWallet: 'rHIRER', body: { agentId: 'agent-1', offer: { priceXrp: '9' }, terms: 'Task' } });
   const jobId = created.job.id;
 
@@ -154,12 +190,30 @@ test('refund creates signature payload and confirms to refunded', async () => {
     payloadUuid: `create-${jobId}`,
     signed: true,
     txid: `tx-create-${jobId}`,
-    txResult: { hash: `tx-create-${jobId}`, validated: true, meta: { TransactionResult: 'tesSUCCESS' }, tx_json: { Sequence: 88 }, ledger_index: 10 },
+    txResult: {
+      hash: `tx-create-${jobId}`,
+      validated: true,
+      meta: {
+        TransactionResult: 'tesSUCCESS',
+        AffectedNodes: [{
+          CreatedNode: {
+            LedgerEntryType: 'Escrow',
+            LedgerIndex: `escrow-ledger-${jobId}`,
+            NewFields: { Owner: 'rHIRER', Sequence: 88 },
+          },
+        }],
+      },
+      tx_json: { Sequence: 88 },
+      ledger_index: 10,
+    },
   });
 
   const refund = await service.refundEscrow({ jobId, hirerWallet: 'rHIRER', reason: 'Refund requested' });
   assert.equal(refund.tx.action, 'signature_required');
   assert.equal(refund.job.escrow.cancelPayloadUuid, `cancel-${jobId}`);
+  assert.equal(calls.cancelEscrow[0].fromWallet, 'rHIRER');
+  assert.equal(calls.cancelEscrow[0].escrowOwner, 'rHIRER');
+  assert.equal(calls.cancelEscrow[0].escrowSequence, 88);
 
   const confirmed = await service.confirmEscrowRefund({ jobId, hirerWallet: 'rHIRER' });
   assert.equal(confirmed.job.status, 'refunded');
