@@ -16,5 +16,15 @@ export async function POST(request, { params }) {
     reason: body?.reason,
   });
   if (result.error) return jsonError(result.status, result.error[0], result.error[1]);
-  return NextResponse.json({ ok: true, job: result.job, escrowTx: result.tx });
+
+  const payloadUuid = result.tx?.uuid || null;
+  const payloadNext = result.tx?.signUrl || null;
+
+  return NextResponse.json({
+    ok: true,
+    job: result.job,
+    escrowTx: result.tx,
+    ...(payloadUuid ? { uuid: payloadUuid } : {}),
+    ...(payloadNext ? { next: payloadNext } : {}),
+  });
 }

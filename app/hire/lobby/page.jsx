@@ -107,9 +107,12 @@ export default function HireLobbyPage() {
 
   useEffect(() => {
     if (!awaitingSignature) return;
-    if (awaitingSignature.type === 'deposit') return;
-    const endpoint = awaitingSignature.type === 'deposit' ? 'escrow-status' : 'release-status';
-    const targetStatus = awaitingSignature.type === 'deposit' ? 'escrowed' : 'completed';
+    const endpoint = awaitingSignature.type === 'deposit'
+      ? 'escrow-status'
+      : (awaitingSignature.type === 'refund' ? 'refund-status' : 'release-status');
+    const targetStatus = awaitingSignature.type === 'deposit'
+      ? 'escrowed'
+      : (awaitingSignature.type === 'refund' ? 'refunded' : 'completed');
     let cancelled = false;
 
     const timer = setInterval(async () => {
@@ -209,9 +212,11 @@ export default function HireLobbyPage() {
       });
 
       if (payload?.escrowTx?.action === 'signature_required') {
-        setAwaitingSignature({ jobId, type: path === 'deposit' ? 'deposit' : 'release' });
+        const signatureType = path === 'deposit' ? 'deposit' : (path === 'refund' ? 'refund' : 'release');
+        setAwaitingSignature({ jobId, type: signatureType });
         setJobMessage(`Awaiting signature in Xaman for ${path}.`);
-        if (payload.escrowTx.signUrl) window.open(payload.escrowTx.signUrl, '_blank', 'noopener,noreferrer');
+        const signTarget = payload.next || payload.escrowTx.signUrl;
+        if (signTarget) window.open(signTarget, '_blank', 'noopener,noreferrer');
 
         if (path === 'deposit') {
           pollEscrowStatus(jobId);

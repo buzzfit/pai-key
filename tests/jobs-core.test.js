@@ -51,7 +51,10 @@ function makeHarness({ asyncSign = false, payloadSigned = true } = {}) {
       if (asyncSign) return { action: 'signature_required', uuid: `finish-${jobId}`, signUrl: 'https://xumm/sign/finish' };
       return { txHash: `finish-${jobId}`, ledgerIndex: 2 };
     },
-    async cancelEscrow({ jobId }) { return { txHash: `cancel-${jobId}`, ledgerIndex: 3 }; },
+    async cancelEscrow({ jobId }) {
+      if (asyncSign) return { action: 'signature_required', uuid: `cancel-${jobId}`, signUrl: 'https://xumm/sign/cancel' };
+      return { txHash: `cancel-${jobId}`, ledgerIndex: 3 };
+    },
     async getPayloadStatus(uuid) {
       if (!payloadSigned) return { meta: { signed: false, resolved: false }, response: {} };
       return { meta: { signed: true, resolved: true }, response: { txid: `tx-${uuid}` } };
@@ -138,4 +141,27 @@ test('confirmEscrowDeposit uses existing tx hash when payload status is unresolv
   const result = await service.confirmEscrowDeposit({ jobId, hirerWallet: 'rHIRER' });
   assert.equal(result.job.status, 'escrowed');
   assert.equal(result.payload.validated, true);
+});
+
+
+test('refund creates signature payload and confirms to refunded', async () => {
+  const { service } = makeHarness({ asyncSign: true });
+  const created = await service.createJob({ hirerWallet: 'rHIRER', body: { agentId: 'agent-1', offer: { priceXrp: '9' }, terms: 'Task' } });
+  const jobId = created.job.id;
+
+  await service.depositEscrow({ jobId, hirerWallet: 'rHIRER' });
+  await service.processXummCallback({
+    payloadUuid: `create-${jobId}`,
+    signed: true,
+    txid: `tx-create-${jobId}`,
+    txResult: { hash: `tx-create-${jobId}`, validated: true, meta: { TransactionResult: 'tesSUCCESS' }, tx_json: { Sequence: 88 }, ledger_index: 10 },
+  });
+
+  const refund = await service.refundEscrow({ jobId, hirerWallet: 'rHIRER', reason: 'Refund requested' });
+  assert.equal(refund.tx.action, 'signature_required');
+  assert.equal(refund.job.escrow.cancelPayloadUuid, `cancel-${jobId}`);
+
+  const confirmed = await service.confirmEscrowRefund({ jobId, hirerWallet: 'rHIRER' });
+  assert.equal(confirmed.job.status, 'refunded');
+  assert.equal(confirmed.payload.validated, true);
 });
