@@ -5,14 +5,18 @@ import { useRouter } from 'next/navigation';
 import AgentCard from '../../../components/AgentCard';
 
 const HUMAN_VISIBLE_STATUSES = [
-  'pending_deposit',
+  'offered',
+  'countered',
+  'accepted',
+  'escrow_pending',
   'escrowed',
-  'accepted_by_agent',
   'submitted',
-  'rejected',
   'completed',
-  'refunded',
+  'expired',
   'disputed',
+  'resolved',
+  'declined',
+  'refunded',
 ];
 
 function formatError(payload, fallback = 'Request failed') {
@@ -339,23 +343,22 @@ export default function HireLobbyPage() {
                     {selectedJob.submission && <pre className="overflow-auto rounded bg-black p-2 text-xs">{JSON.stringify(selectedJob.submission, null, 2)}</pre>}
 
                     <div className="flex flex-wrap gap-2 pt-2">
-                      {selectedJob.status === 'pending_deposit' && (
-                        <button disabled={jobBusy} onClick={() => postJobAction(selectedJob.id, 'deposit')} className="rounded bg-matrix-green px-3 py-1.5 text-black">Deposit Escrow</button>
+                      {selectedJob.status === 'accepted' && (
+                        <button disabled={jobBusy} onClick={() => postJobAction(selectedJob.id, 'deposit')} className="rounded bg-matrix-green px-3 py-1.5 text-black">Fund Escrow</button>
                       )}
                       {selectedJob.status === 'submitted' && (
                         <>
-                          <button disabled={jobBusy} onClick={() => postJobAction(selectedJob.id, 'review', { decision: 'accepted', rating: 5, comment: 'Accepted by hirer' })} className="rounded bg-matrix-green px-3 py-1.5 text-black">Accept</button>
-                          <button disabled={jobBusy} onClick={() => postJobAction(selectedJob.id, 'review', { decision: 'rejected', comment: 'Rejected by hirer' })} className="rounded border border-yellow-500 px-3 py-1.5 text-yellow-200">Reject</button>
-                          <button disabled={jobBusy} onClick={() => postJobAction(selectedJob.id, 'dispute', { reason: 'Need adjudication' })} className="rounded border border-red-500 px-3 py-1.5 text-red-300">Open Dispute</button>
+                          <button disabled={jobBusy} onClick={() => postJobAction(selectedJob.id, 'review', { decision: 'accepted', rating: 5, comment: 'Accepted completion by hirer' })} className="rounded bg-matrix-green px-3 py-1.5 text-black">Accept Completion</button>
+                          <button disabled={jobBusy} onClick={() => postJobAction(selectedJob.id, 'dispute', { reason: 'Dispute completion' })} className="rounded border border-red-500 px-3 py-1.5 text-red-300">Dispute Completion</button>
                         </>
                       )}
                       {selectedJob.status === 'submitted' && selectedJob.review?.decision === 'accepted' && (
                         <button disabled={jobBusy} onClick={() => postJobAction(selectedJob.id, 'release')} className="rounded bg-matrix-green px-3 py-1.5 text-black">Release Escrow</button>
                       )}
-                      {['escrowed', 'accepted_by_agent', 'submitted', 'disputed'].includes(selectedJob.status) && (
-                        <button disabled={jobBusy} onClick={() => postJobAction(selectedJob.id, 'refund', { reason: 'Refund requested' })} className="rounded border border-gray-400 px-3 py-1.5">Refund</button>
+                      {['expired', 'disputed', 'resolved'].includes(selectedJob.status) && (
+                        <button disabled={jobBusy} onClick={() => postJobAction(selectedJob.id, 'refund', { reason: 'Escrow cancel requested' })} className="rounded border border-gray-400 px-3 py-1.5">Escrow Cancel</button>
                       )}
-                      {['completed', 'refunded', 'disputed', 'submitted', 'escrowed', 'accepted_by_agent', 'pending_deposit'].includes(selectedJob.status) && (
+                      {['completed', 'refunded', 'disputed', 'submitted', 'escrowed', 'escrow_pending', 'accepted', 'offered', 'countered', 'expired', 'resolved', 'declined'].includes(selectedJob.status) && (
                         <button disabled={jobBusy} onClick={() => postJobAction(selectedJob.id, 'archive')} className="rounded border border-matrix-green/60 px-3 py-1.5">Archive Job</button>
                       )}
                     </div>
