@@ -13,12 +13,25 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const scope = searchParams.get('scope') || 'mine';
   const status = searchParams.get('status') || null;
+  const agent = searchParams.get('agent') || null;
+  const requestedAgentWallet = agent === 'self' ? auth.account : agent;
+
+  if (requestedAgentWallet && auth.type !== 'agent') {
+    return jsonError(403, 'Forbidden', 'Agent-scoped queries require agent bearer authentication');
+  }
+
+  const includeArchived = searchParams.get('includeArchived') === 'true';
+
   const jobs = await jobsService.listJobs(
-    scope === 'all'
-      ? { status }
+    requestedAgentWallet
+      ? { agentWallet: requestedAgentWallet, status, includeArchived }
+      : scope === 'all'
+      ? auth.type === 'agent'
+        ? { agentWallet: auth.account, status, includeArchived }
+        : { status, includeArchived }
       : auth.type === 'human'
-        ? { hirerWallet: auth.account, status }
-        : { agentWallet: auth.account, status }
+        ? { hirerWallet: auth.account, status, includeArchived }
+        : { agentWallet: auth.account, status, includeArchived }
   );
 
   return NextResponse.json({ ok: true, jobs });

@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import VendorDockForm from '../../../components/VendorDockForm';
 import AgentCard from '../../../components/AgentCard';
+import AgentConsole from '../../../components/AgentConsole';
 // use Xaman naming via alias (we’ll rename the file later)
 import { connectXummInteractive as connectXamanInteractive } from '../../../lib/xummConnectClient';
 
@@ -13,6 +14,8 @@ export default function VendorDockPage() {
   const [account, setAccount] = useState(null);
   const [agents, setAgents] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [jobs, setJobs] = useState([]);
+  const [jobBusy, setJobBusy] = useState(false);
 
   // 🧹 Remove the aggressive auto-logout on hide/unload.
   // We’ll keep the cookie between reloads so the dock stays “live”.
@@ -76,6 +79,39 @@ export default function VendorDockPage() {
     setAgents([]);
     router.replace('/');
   };
+
+
+  const loadJobs = async (acct) => {
+    if (!acct) { setJobs([]); return; }
+    try {
+      const payload = await fetch('/api/jobs?scope=mine', { cache: 'no-store' }).then((r) => r.json());
+      const nextJobs = (payload.jobs || []).filter((j) => ['offered', 'countered', 'accepted', 'escrowed', 'submitted', 'escrow_pending'].includes(j.status));
+      setJobs(nextJobs);
+    } catch {
+      setJobs([]);
+    }
+  };
+
+  const postJobAction = async (jobId, path, body = null) => {
+    setJobBusy(true);
+    try {
+      const res = await fetch(`/api/jobs/${jobId}/${path}`, {
+        method: 'POST',
+        headers: body ? { 'content-type': 'application/json' } : undefined,
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(payload?.error?.message || payload?.error || `HTTP ${res.status}`);
+      await loadJobs(account);
+      if (payload?.escrowTx?.signUrl) window.open(payload.escrowTx.signUrl, '_blank', 'noopener,noreferrer');
+    } catch (e) {
+      alert(e.message || 'Job action failed');
+    } finally {
+      setJobBusy(false);
+    }
+  };
+
+  useEffect(() => { loadJobs(account); }, [account]);
 
   return (
     <div
@@ -159,6 +195,39 @@ export default function VendorDockPage() {
             ))}
           </ul>
         )}
+
+
+        <section className="mt-8 rounded-2xl border border-matrix-green/20 bg-gray-900/40 p-4">
+          <h2 className="mb-3 text-sm font-medium text-matrix-green/80">Job Inbox</h2>
+          {!jobs.length ? (
+            <p className="text-sm text-gray-400">No active jobs assigned to your wallet.</p>
+          ) : (
+            <ul className="space-y-2 text-sm">
+              {jobs.map((job) => (
+                <li key={job.id} className="rounded border border-matrix-green/20 p-3">
+                  <div className="font-mono text-xs text-matrix-green">{job.id}</div>
+                  <div>Status: {job.status}</div>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {['offered', 'countered'].includes(job.status) && (
+                      <>
+                        <button disabled={jobBusy} onClick={() => postJobAction(job.id, 'accept')} className="rounded bg-matrix-green px-2 py-1 text-black">Accept</button>
+                        <button disabled={jobBusy} onClick={() => postJobAction(job.id, 'counter', { offer: { priceXrp: job.offer?.priceXrp }, deadline: job.deadline, proofRequirements: job.proofRequirements || 'Updated by agent' })} className="rounded border border-matrix-green/60 px-2 py-1">Counter</button>
+                        <button disabled={jobBusy} onClick={() => postJobAction(job.id, 'decline')} className="rounded border border-red-500 px-2 py-1 text-red-300">Decline</button>
+                      </>
+                    )}
+                    {job.status === 'escrowed' && <span className="text-matrix-green">Escrow secured. Begin work.</span>}
+                    {job.status === 'escrowed' && (
+                      <button disabled={jobBusy} onClick={() => postJobAction(job.id, 'submit-proof', { proofData: { note: 'Proof submitted from dock' } })} className="rounded border border-matrix-green/60 px-2 py-1">Submit Proof</button>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+
+        <AgentConsole title="Vendor Agent Console" />
       </div>
 
       {/* Modal: add agent — always require interactive Xaman connect */}
